@@ -27,14 +27,15 @@ done-when check has run and its result is in `job-portal-graph/docs/PROGRESS.md`
 - [ ] **02 Neo4j running.** `docker compose up -d neo4j`; wait for healthy; `RETURN 1` via
   `cypher-shell`; confirm the GDS plugin loaded (`RETURN gds.version()`); start the `test`
   profile on 7688 and repeat. Done when both instances answer and the version is recorded in
-  `PROGRESS.md`.
+  `PROGRESS.md`. *(done)*
 - [ ] **03 Fail-fast config + boot.** `src/config.js` (dotenv + zod, readable errors),
   `src/lib/logger.js` (pino), `server.js` (config → listen → log).
   Done when a missing `NEO4J_PASSWORD` or `JWT_SECRET` exits 1 with a readable message, and a
-  valid `.env` starts and shuts down on SIGINT.
+  valid `.env` starts and shuts down on SIGINT. *(done)*
 - [ ] **04 DESIGN.md + tokens.** `npx getdesign@latest add apple`, read it, extract colour /
   type / spacing / radius / elevation into `public/css/tokens.css`.
   Done when `DESIGN.md` exists and `tokens.css` contains only variables (no component rules).
+  *(done)*
 
 ## Phase 1 — data layer, auth, CRUD
 
@@ -68,60 +69,60 @@ done-when check has run and its result is in `job-portal-graph/docs/PROGRESS.md`
 - [ ] **12 Login / logout / me.** Cookie (`httpOnly`, `SameSite=Lax`, `Secure` from env),
   generic 401 message, `GET /api/auth/me` returning role + profile id.
   Done when a wrong password is 401 and `me` works after restart (stateless token).
-- [ ] **13 Test harness.** `vitest.config.js`, a guard that refuses to run when
+- [x] **13 Test harness.** `vitest.config.js`, a guard that refuses to run when
   `NEO4J_TEST_URI` equals `NEO4J_URI`, `tests/helpers/app.js` (supertest factory), fixture
   builder whose header says `TEST ONLY`.
   Done when `npm test` runs one trivial test against 7688 and refuses the runtime URI.
-- [ ] **14 Candidate profile.** `GET/PUT /api/candidates/me`,
+- [x] **14 Candidate profile.** `GET/PUT /api/candidates/me`,
   `DELETE /api/candidates/me` (`DETACH DELETE` profile, education, `Account`).
   Done when another account gets 403, and delete leaves no orphan nodes or edges.
-- [ ] **15 Candidate skills + education.** `PUT /api/candidates/me/skills` (atomic replace,
+- [x] **15 Candidate skills + education.** `PUT /api/candidates/me/skills` (atomic replace,
   proficiency 1–5, years 0–60, optional `last_used_year`), `POST/DELETE .../education`.
   Done when an out-of-range value returns 400 with the field path and a replace leaves no
   stale `HAS_SKILL` edges.
-- [ ] **16 Skill catalogue.** `src/lib/skillKey.js` (lower-case, trim, collapse whitespace),
+- [x] **16 Skill catalogue.** `src/lib/skillKey.js` (lower-case, trim, collapse whitespace),
   `GET /api/skills?q=`, `POST /api/skills`.
   Done when "Node.js", " node.js " and "NODE.JS" resolve to one `Skill`, and a Cypher-injection
   string is stored as a literal name.
-- [ ] **17 ESCO suggestions.** `src/ingest/esco.js`: timeout, cached, results marked
+- [x] **17 ESCO suggestions.** `src/ingest/esco.js`: timeout, cached, results marked
   `source: "esco"`, failure never breaks local results.
   Done when ESCO is unreachable and `/api/skills?q=x` still returns local rows with
   `capabilities.esco: false`, no 500.
-- [ ] **18 Jobs create.** `POST /api/jobs` (employer only) with embedded requirements,
+- [x] **18 Jobs create.** `POST /api/jobs` (employer only) with embedded requirements,
   `requirement_source`, native `DATE`/`DATETIME` conversion, ownership.
   Done when a non-employer is 403, a bad date is 400, and requirements land as
   `REQUIRES_SKILL` edges.
-- [ ] **19 Jobs read + edit.** `GET /api/jobs` (filters, `limit ≤ 100`, `skip`),
+- [x] **19 Jobs read + edit.** `GET /api/jobs` (filters, `limit ≤ 100`, `skip`),
   `GET /api/jobs/:id`, `PATCH /api/jobs/:id` (edit/close).
   Done when closing a job makes it disappear from the ranked-match set and a non-owner gets 403.
-- [ ] **20 Phase 1 sweep.** A supertest sweep that reaches every code in §9.1, an empty-DB CRUD
+- [x] **20 Phase 1 sweep.** A supertest sweep that reaches every code in §9.1, an empty-DB CRUD
   walkthrough, and `npm test` green. Done when recorded in `PROGRESS.md`.
 
 ## Phase 2 — matching engine
 
-- [ ] **21 Reference matcher.** `src/services/matching.js` implementing §8.1 exactly, plus
+- [x] **21 Reference matcher.** `src/services/matching.js` implementing §8.1 exactly, plus
   unit tests: equal-to-minimum, null minimums, zero requirements, mandatory missing, band edges.
   Done when tests cover 39.9 / 40 / 74.9 / 75.
-- [ ] **22 Q1.** `src/queries/q1Match.js` (plan §8.2 Q1), `GET /api/match/:candId/:jobId`,
+- [x] **22 Q1.** `src/queries/q1Match.js` (plan §8.2 Q1), `GET /api/match/:candId/:jobId`,
   `GET .../subgraph`, 404 when the candidate or job is missing, `PROFILE` it.
   Done when a missing id returns 404 (not 0 %) and the plan uses the id indexes.
-- [ ] **23 Candidate ranking.** §8.3 query + `GET /api/match/candidate/:candId/jobs`,
+- [x] **23 Candidate ranking.** §8.3 query + `GET /api/match/candidate/:candId/jobs`,
   unscored bucket kept separate, pagination.
   Done when a candidate with no skills gets an empty ranked list plus the real message, never
   100 %.
-- [ ] **24 Q2 skill gap.** Query + `GET /api/gap/:candId/:jobId`, ordered mandatory first.
+- [x] **24 Q2 skill gap.** Query + `GET /api/gap/:candId/:jobId`, ordered mandatory first.
   Done when `below` and `missing` are both represented in a fixture.
-- [ ] **25 Q3 referrals.** Query + `POST /api/referrals`, `GET /api/referrals/:candId/chain`
+- [x] **25 Q3 referrals.** Query + `POST /api/referrals`, `GET /api/referrals/:candId/chain`
   (`maxHops` clamped 1–3), cycle-safe.
   Done when a 3-hop chain returns once and a cycle does not loop.
-- [ ] **26 Q4 recruiter recommendations.** Query + `GET /api/recruiter/:empId/recommendations`,
+- [x] **26 Q4 recruiter recommendations.** Query + `GET /api/recruiter/:empId/recommendations`,
   threshold from env, excludes applicants and closed/expired jobs.
   Done when an applicant never appears and a 39.9 % candidate is filtered at 40.
-- [ ] **27 Apply + screening.** `POST /api/applications` in one write tx: Q1 inside the tx,
+- [x] **27 Apply + screening.** `POST /api/applications` in one write tx: Q1 inside the tx,
   threshold 422, mandatory 422, `MERGE` dedupe → 409, snapshot `MATCHED_TO` + one
   `ASSESSED_FOR` per requirement.
   Done when 20 parallel applies yield exactly one 201 and the rest 409.
-- [ ] **28 Application read/update.** `GET /api/applications/me`,
+- [x] **28 Application read/update.** `GET /api/applications/me`,
   `PATCH /api/applications/:id` (employer status/`final_result`, ownership).
   Done when a candidate cannot patch status and an unrelated employer gets 403.
 - [ ] **29 What-if.** `src/services/whatIf.js` (`max(stored, hypothetical)` per skill) +

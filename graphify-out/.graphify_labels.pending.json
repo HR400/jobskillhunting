@@ -1,0 +1,15 @@
+{
+  "0": "package.json",
+  "1": "DESIGN.md",
+  "2": "routes/auth.js",
+  "3": "PLAN.md — Job Portal with Skill-Based Candidate Matching (Neo4j graph edition)",
+  "4": "src/app.js",
+  "5": "healthcheck",
+  "6": "config.js",
+  "7": "db.js",
+  "9": "match.js",
+  "10": "routes/candidates.js",
+  "11": "AGENTS.md",
+  "12": "planner.md",
+  "13": "routes/jobs.js"
+}

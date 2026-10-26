@@ -1,0 +1,28 @@
+<!doctype html>
+<!-- DEV SMOKE — manual harness for the API client (Ticket 31), not a product page. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API smoke</title>
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <style>
+    body { font: 14px/1.5 system-ui; margin: 24px; }
+    label { display: block; margin: 8px 0 2px; }
+    button { margin: 8px 8px 8px 0; padding: 6px 14px; }
+    pre { background: #f5f5f7; padding: 12px; white-space: pre-wrap; max-width: 720px; }
+  </style>
+</head>
+<body>
+  <h1>API smoke (dev)</h1>
+  <p>Types real values, calls the real endpoints through <code>public/js/api.js</code>.</p>
+  <form id="f">
+    <label>Email <input name="email" type="email" required placeholder="you@example.com" /></label>
+    <label>Password <input name="password" type="password" required minlength="8" /></label>
+    <button type="submit">Register → login → ranked list</button>
+    <button type="button" id="logout">Logout</button>
+  </form>
+  <pre id="out">—</pre>
+  <script type="module" src="/js/smoke.js"></script>
+</body>
+</html>
