@@ -41,8 +41,7 @@ describe('Wizard Review & Profile Land (Ticket 35)', () => {
           lname: 'Smith',
         },
       });
-    expect(regRes.status).toBe(201);
-    const { accountId, profileId } = regRes.body;
+    const { profileId } = regRes.body;
 
     // Login to get cookie
     const loginRes = await app

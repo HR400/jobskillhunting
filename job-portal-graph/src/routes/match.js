@@ -244,7 +244,7 @@ matchRouter.get(
           },
         });
       }
-    } catch (err) {
+    } catch {
       if (!closed) {
         emit('error', { error: { code: 'INTERNAL', message: 'Stream error.' } });
       }

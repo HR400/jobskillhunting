@@ -121,7 +121,7 @@ async function loadCandidateMatch(candId) {
         candId,
         canvas: canvasInstance,
         verdictStrip,
-        onComplete: async (totals) => {
+        onComplete: async (_totals) => {
           if (topJob) {
             if (inspectorInstance) {
               inspectorInstance.inspectJob(candId, topJob.job_id);

@@ -5,7 +5,7 @@
  * Never connects to or mutates the runtime database.
  */
 import { randomUUID } from 'node:crypto';
-import { getTestDriver, wipeTestDb } from './db.js';
+import { wipeTestDb } from './db.js';
 import { hashPassword } from '../../src/lib/auth.js';
 
 export { wipeTestDb };

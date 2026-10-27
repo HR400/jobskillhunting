@@ -443,8 +443,13 @@ function renderStep3() {
       }
       try {
         await api.put('/candidates/me/skills', { skills: collected.skills });
-        step = 4;
-        render();
+        window.dispatchEvent(new CustomEvent('session-change', { detail: session }));
+        if (session) {
+          await renderCandidateDashboard();
+        } else {
+          step = 4;
+          render();
+        }
       } catch (err) {
         if (err instanceof ApiError) {
           let banner = wrap.querySelector('.form-error');
@@ -669,6 +674,107 @@ function renderStep5() {
 // ── Render ───────────────────────────────────────────────────────────────────
 const STEP_RENDERERS = [null, renderStep1, renderStep2, renderStep3, renderStep4, renderStep5];
 
+async function renderCandidateDashboard() {
+  if (!slot) return;
+  slot.innerHTML = '';
+  const wrap = el('div', { className: 'profile-dashboard' });
+
+  let profile = null;
+  try {
+    profile = await api.get('/candidates/me');
+  } catch {
+    // profile not completed yet
+  }
+
+  const name = profile ? `${profile.fname || ''} ${profile.lname || ''}`.trim() : session?.email;
+  const candidateType = profile?.candidate_type ?? 'Candidate';
+
+  const card = el('div', { className: 'profile-card' });
+  card.append(
+    el('h3', { className: 'profile-user-name' }, name || 'Your Profile'),
+    el('span', { className: 'profile-role-badge' }, candidateType),
+    el('p', { className: 'muted', style: 'margin: 0 0 var(--space-xs); font-size: var(--text-caption-size);' }, session?.email || ''),
+  );
+
+  // Held skills list
+  const skillsTitle = el('h4', { className: 'wizard-step-title', style: 'font-size: var(--text-body-size); margin-top: var(--space-xs);' }, 'Skills');
+  const skillsList = el('div', { className: 'profile-skills-list' });
+
+  const heldSkills = profile?.skills || [];
+  if (heldSkills.length > 0) {
+    for (const s of heldSkills) {
+      skillsList.append(
+        el('span', { className: 'profile-skill-chip' },
+          `${s.name || s.skill_key} · ${s.proficiency}/5 (${s.years}y)`),
+      );
+    }
+  } else {
+    skillsList.append(el('p', { className: 'muted', style: 'font-size: var(--text-caption-size); margin: 0;' }, 'No skills added yet. Add skills to see live graph matches!'));
+  }
+
+  const btnGroup = el('div', { style: 'display: flex; gap: var(--space-xs); margin-top: var(--space-md); flex-wrap: wrap;' });
+
+  const manageSkillsBtn = el('button', {
+    type: 'button',
+    className: 'wizard-btn',
+    onClick: () => {
+      collected.skills = (profile?.skills || []).map(s => ({
+        skill_key: s.skill_key,
+        name: s.name || s.skill_key,
+        proficiency: s.proficiency,
+        years: s.years,
+        last_used_year: s.last_used_year,
+      }));
+      step = 3;
+      render();
+    },
+  }, heldSkills.length > 0 ? 'Edit Skills' : '+ Add Skills');
+
+  const manageEduBtn = el('button', {
+    type: 'button',
+    className: 'wizard-btn-secondary',
+    style: 'border: var(--border-hairline); border-radius: var(--radius-pill); background: var(--color-canvas); color: var(--color-page-text); padding: var(--space-xs) var(--space-md); cursor: pointer;',
+    onClick: () => {
+      step = 4;
+      render();
+    },
+  }, '+ Add Education');
+
+  btnGroup.append(manageSkillsBtn, manageEduBtn);
+  card.append(skillsTitle, skillsList, btnGroup);
+  wrap.append(card);
+  slot.append(wrap);
+}
+
+function renderEmployerDashboard() {
+  if (!slot) return;
+  slot.innerHTML = '';
+  const wrap = el('div', { className: 'profile-dashboard' });
+  const card = el('div', { className: 'profile-card' });
+  card.append(
+    el('h3', { className: 'profile-user-name' }, 'Employer Portal'),
+    el('p', { className: 'muted' }, session?.email || ''),
+    el('p', {}, 'Switch to the Recruiter tab to view candidates for your posted jobs.'),
+  );
+  wrap.append(card);
+  slot.append(wrap);
+}
+
+export async function setWizardSession(userSession) {
+  session = userSession;
+  if (!slot) return;
+  if (!session) {
+    step = 1;
+    render();
+    return;
+  }
+  if (session.role === 'candidate') {
+    await renderCandidateDashboard();
+  } else if (session.role === 'employer') {
+    renderEmployerDashboard();
+  }
+}
+
 function render() {
   if (!slot) return;
   slot.innerHTML = '';
@@ -679,5 +785,10 @@ function render() {
 /** Initialise the wizard in the given container element. */
 export function initWizard(container) {
   slot = container;
-  render();
+  if (session) {
+    setWizardSession(session);
+  } else {
+    render();
+  }
 }
+

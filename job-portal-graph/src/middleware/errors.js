@@ -8,7 +8,7 @@
  *   notFoundHandler — JSON 404 for unmatched /api/* routes
  *   errorHandler  — final four-argument Express error middleware
  */
-import { AppError, ERROR_STATUS } from '../lib/errors.js';
+import { AppError } from '../lib/errors.js';
 import { logger } from '../lib/logger.js';
 
 /**

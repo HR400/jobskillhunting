@@ -140,13 +140,30 @@ a { color: var(--color-link); }
 .center { display: flex; flex-direction: column; gap: var(--space-lg); }
 
 .canvas-slot {
-  min-height: 420px;
-  display: grid;
-  place-items: center;
+  min-height: 460px;
+  height: 520px;
+  position: relative;
+  display: block;
   border: var(--border-hairline);
   border-radius: var(--radius-lg);
-  background: var(--color-canvas);
-  padding: var(--space-lg);
+  background: var(--color-surface-pearl);
+  padding: 0;
+  overflow: hidden;
+}
+
+.canvas-slot .vis-network {
+  width: 100% !important;
+  height: 100% !important;
+  outline: none;
+}
+
+.canvas-slot > p.muted {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
 }
 
 .charts {
@@ -619,3 +636,51 @@ body:not([data-mode='match']) .charts { display: none; }
 .unscored-list li {
   padding: var(--space-xxs) 0;
 }
+
+/* Logged in profile dashboard */
+.profile-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.profile-card {
+  padding: var(--space-md);
+  border: var(--border-hairline);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-pearl);
+}
+
+.profile-user-name {
+  margin: 0 0 var(--space-xxs);
+  font-family: var(--font-display);
+  font-size: var(--text-lead-size);
+  font-weight: var(--text-tagline-weight);
+}
+
+.profile-role-badge {
+  display: inline-block;
+  font-size: var(--text-caption-size);
+  padding: var(--space-xxs) var(--space-xs);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  text-transform: capitalize;
+  margin-bottom: var(--space-xs);
+}
+
+.profile-skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.profile-skill-chip {
+  padding: var(--space-xxs) var(--space-xs);
+  border-radius: var(--radius-pill);
+  border: var(--border-hairline);
+  background: var(--color-canvas);
+  font-size: var(--text-caption-size);
+}
+

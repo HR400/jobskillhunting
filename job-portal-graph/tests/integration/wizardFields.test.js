@@ -6,7 +6,7 @@
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { getTestApp } from '../helpers/app.js';
-import { getTestDriver, wipeTestDb, closeTestDriver } from '../helpers/db.js';
+import { getTestDriver, wipeTestDb } from '../helpers/db.js';
 import { createTestCandidate } from '../helpers/fixtures.js';
 
 describe('Wizard field validation (Ticket 33)', () => {

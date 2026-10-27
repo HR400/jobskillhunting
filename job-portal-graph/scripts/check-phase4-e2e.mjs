@@ -164,7 +164,7 @@ await page.waitForFunction(() => window.__app?.canvas?.nodes.get().length > 2, {
 await page.waitForSelector('.radar-label[data-skill-key="javascript"]', { timeout: 20000 });
 
 // ── 41. Linked views ────────────────────────────────────────────────────────
-const jsNodeOpacity = () =>
+const _jsNodeOpacity = () =>
   page.evaluate(() => window.__app.canvas.nodes.get('javascript')?.opacity);
 
 // Hover the JavaScript axis on the radar (dispatch: the SVG relayouts during physics).

@@ -7,7 +7,7 @@
  *
  * Plan §10.5: hovering/selecting a bar dispatches to the store (hover/selection).
  */
-import { setState, getState, subscribe } from '../store.js';
+import { setState, subscribe } from '../store.js';
 
 const BAND_COLOR = {
   Strong: 'var(--color-accent, #34c759)',

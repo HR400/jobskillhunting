@@ -13,8 +13,8 @@ await probeGds();
 const app = createApp();
 
 // ── Server ─────────────────────────────────────────────────────────────────
-const server = app.listen(config.PORT, () => {
-  logger.info({ port: config.PORT, env: config.NODE_ENV }, 'server listening');
+const server = app.listen(config.PORT, '0.0.0.0', () => {
+  logger.info({ port: config.PORT, host: '0.0.0.0', env: config.NODE_ENV }, 'server listening');
 });
 
 let shuttingDown = false;

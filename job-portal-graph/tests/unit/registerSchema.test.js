@@ -45,7 +45,7 @@ describe('registerSchema', () => {
   });
 
   it('rejects a missing candidate_type', () => {
-    const { candidate_type, ...profile } = validCandidate.profile;
+    const { candidate_type: _candidate_type, ...profile } = validCandidate.profile;
     const result = registerSchema.safeParse({ ...validCandidate, profile });
     expect(result.success).toBe(false);
   });
