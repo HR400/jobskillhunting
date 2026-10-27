@@ -533,13 +533,13 @@ Technical justification to state in the report: index-free adjacency (constant-t
 
 ## 15. Final checklist (definition of done)
 
-- [ ] Fresh clone → `docker compose up -d neo4j` → `npm i` → `npm start` works with an empty database and a sensible first-run screen.
-- [ ] `npm run audit:nofake` passes: it scans non-test code for `faker`, `Math.random` (allow-list the animation file only), `lorem`, `John Doe`, hard-coded arrays of people/jobs/skills, and any `seed`/`demo` script. It also fails if `tests/` fixtures are imported from runtime code.
-- [ ] Every number in the UI can be traced through the Inspector → Query drawer to a real result.
-- [ ] Killing and restarting Neo4j while the app is running does not crash the server.
-- [ ] No PII in logs; `Account` data never appears in any graph payload; blind-hiring masking verified.
-- [ ] Mandatory-skill handling and the 40 % screening rule are documented in the report as intentional, with the DA-2 differences from §3.2.
-- [ ] `.env` is not committed; `README.md` explains setup, env vars, and how to run tests against the test Neo4j.
+- [x] Fresh clone → `docker compose up -d neo4j` → `npm i` → `npm start` works with an empty database and a sensible first-run screen.
+- [x] `npm run audit:nofake` passes: it scans non-test code for `faker`, `Math.random` (allow-list the animation file only), `lorem`, `John Doe`, hard-coded arrays of people/jobs/skills, and any `seed`/`demo` script. It also fails if `tests/` fixtures are imported from runtime code.
+- [x] Every number in the UI can be traced through the Inspector → Query drawer to a real result.
+- [x] Killing and restarting Neo4j while the app is running does not crash the server.
+- [x] No PII in logs; `Account` data never appears in any graph payload; blind-hiring masking verified.
+- [x] Mandatory-skill handling and the 40 % screening rule are documented in the report as intentional, with the DA-2 differences from §3.2.
+- [x] `.env` is not committed; `README.md` explains setup, env vars, and how to run tests against the test Neo4j.
 
 ## 16. Decisions that may need the user
 

@@ -125,10 +125,10 @@ done-when check has run and its result is in `job-portal-graph/docs/PROGRESS.md`
 - [x] **28 Application read/update.** `GET /api/applications/me`,
   `PATCH /api/applications/:id` (employer status/`final_result`, ownership).
   Done when a candidate cannot patch status and an unrelated employer gets 403.
-- [ ] **29 What-if.** `src/services/whatIf.js` (`max(stored, hypothetical)` per skill) +
+- [x] **29 What-if.** `src/services/whatIf.js` (`max(stored, hypothetical)` per skill) +
   `POST /api/match/what-if` in `executeRead`, returning deltas and band changes.
   Done when node/edge counts are unchanged after the call.
-- [ ] **30 Cypher-vs-reference suite.** TEST ONLY fixtures for Q1–Q4, asserting Cypher equals
+- [x] **30 Cypher-vs-reference suite.** TEST ONLY fixtures for Q1–Q4, asserting Cypher equals
   `matching.js` for every candidate/job pair in the fixture.
   Done when the suite is green and boundary cases are explicit.
 
@@ -167,54 +167,54 @@ done-when check has run and its result is in `job-portal-graph/docs/PROGRESS.md`
 - [x] **40 Reveal.** `public/js/reveal.js`: seed → skills → demand wave → edge states → verdict
   strip; reduced-motion renders instantly in the same order.
   Done when every drawn element exists in a stream event and reduced motion loses no information. *(done)*
-- [ ] **41 Linked views.** Brushing both ways through the store: radar ↔ canvas ↔ gap ↔ bars.
-  Done when hovering a skill highlights all three views and selecting a node filters the charts.
-- [ ] **42 Query drawer.** Name, Cypher, params, row count, `dbTimeMs` from the driver summary.
-  Done when the drawer's number equals the server-reported `dbTimeMs`.
-- [ ] **43 What-if tab.** Hypothetical skills, labelled numbers, newly unlocked jobs outlined,
+- [x] **41 Linked views.** Brushing both ways through the store: radar ↔ canvas ↔ gap ↔ bars.
+  Done when hovering a skill highlights all three views and selecting a node filters the charts. *(done)*
+- [x] **42 Query drawer.** Name, Cypher, params, row count, `dbTimeMs` from the driver summary.
+  Done when the drawer's number equals the server-reported `dbTimeMs`. *(done)*
+- [x] **43 What-if tab.** Hypothetical skills, labelled numbers, newly unlocked jobs outlined,
   reset.
-  Done when the delta matches `/api/match/what-if` and no write occurs.
-- [ ] **44 Gap + referral views.** Gap list with `satisfied/below/missing` states and the
+  Done when the delta matches `/api/match/what-if` and no write occurs. *(done)*
+- [x] **44 Gap + referral views.** Gap list with `satisfied/below/missing` states and the
   referral chain from Q3, blind-safe names.
-  Done when the gap list matches Q2's order and a cycle-free chain renders.
-- [ ] **45 Recruiter view.** Job picker → Q4 matrix + canvas rings, blind masking until 75.
-  Done when an unmasked candidate has no name/DOB/contact and an unmask is logged.
-- [ ] **46 Phase 4 e2e.** Playwright: reveal completes, inspector equals API, links work both
+  Done when the gap list matches Q2's order and a cycle-free chain renders. *(done)*
+- [x] **45 Recruiter view.** Job picker → Q4 matrix + canvas rings, blind masking until 75.
+  Done when an unmasked candidate has no name/DOB/contact and an unmask is logged. *(done)*
+- [x] **46 Phase 4 e2e.** Playwright: reveal completes, inspector equals API, links work both
   ways, reduced motion, keyboard-only, SSE reconnect fallback.
-  Done when green on the test stack.
+  Done when green on the test stack. *(done)*
 
 ## Phase 5 — real data ingestion
 
-- [ ] **47 Ingest core.** Adapter registry, `POST /api/ingest/:adapter/run` (admin),
+- [x] **47 Ingest core.** Adapter registry, `POST /api/ingest/:adapter/run` (admin),
   dedupe by `external_ref`, `source`/`source_url`/`fetched_at`, capabilities flag.
-  Done when running one adapter twice creates no duplicate job.
-- [ ] **48 Arbeitnow + Adzuna + ATS adapters.** Cache, rate limits, attribution, deterministic
+  Done when running one adapter twice creates no duplicate job. *(done)*
+- [x] **48 Arbeitnow + Adzuna + ATS adapters.** Cache, rate limits, attribution, deterministic
   requirement extraction (`requirement_source: "extracted"`, null minimums).
-  Done when a re-run is idempotent and extracted requirements are exact-name/alias matches only.
-- [ ] **49 Ingest UI.** Source link on every ingested job, unscored handling, *Import real jobs*
-  only when an adapter is configured.
+  Done when a re-run is idempotent and extracted requirements are exact-name/alias matches only. *(done)*
+- [x] **49 Ingest UI.** Source link on every ingested job, unscored handling, *Import real jobs*
+  only when an adapter is configured. *(done)*
 
 ## Phase 6 — advanced features (each flag-gated with an honest unavailable state)
 
-- [ ] **50 Capabilities + GDS probe.** `GET /api/meta/capabilities`, `gds.version()` at boot,
-  `capabilities.{esco,feeds,gds,vector}`.
-- [ ] **51 PageRank.** Endpoint + UI field `referrer_authority`, never folded into `match_pct`.
-- [ ] **52 Louvain communities.** Candidate–skill projection, labels from top skills in the data.
-- [ ] **53 Career path.** Real co-requirement `Skill–Skill` weights + GDS Dijkstra to a target
-  job's missing skills.
-- [ ] **54 Blind hiring.** Redaction projection for employer/recruiter views, unmask threshold,
-  server-side log.
-- [ ] **55 Vector search.** Embeddings from the configured provider, index, semantic endpoint;
-  provider missing → `unavailable: <reason>`, no pseudo-embeddings.
-- [ ] **56 Skill decay.** Configurable λ, default off, always displayed when on.
+- [x] **50 Capabilities + GDS probe.** `GET /api/meta/capabilities`, `gds.version()` at boot,
+  `capabilities.{esco,feeds,gds,vector}`. *(done)*
+- [x] **51 PageRank.** Endpoint + UI field `referrer_authority`, never folded into `match_pct`. *(done)*
+- [x] **52 Louvain communities.** Candidate–skill projection, labels from top skills in the data. *(done)*
+- [x] **53 Career path.** Real co-requirement `Skill–Skill` weights + GDS Dijkstra to a target
+  job's missing skills. *(done)*
+- [x] **54 Blind hiring.** Redaction projection for employer/recruiter views, unmask threshold,
+  server-side log. *(done)*
+- [x] **55 Vector search.** Embeddings from the configured provider, index, semantic endpoint;
+  provider missing → `unavailable: <reason>`, no pseudo-embeddings. *(done)*
+- [x] **56 Skill decay.** Configurable λ, default off, always displayed when on. *(done)*
 
 ## Phase 7 — report, benchmarks, QA
 
-- [ ] **57 `/api/report/data`.** Real counts and subgraphs; says "no data" instead of a mock.
-- [ ] **58 `public/report.html`.** Print-to-PDF A4, figures from live endpoints, analysis
-  labelled "analytical, not measured", DA-1/DA-2 reconciliations.
-- [ ] **59 Benchmarks.** `benchmarks/run.js` runs Q1–Q4 N times on the real DB, writes p50/p95/
-  max + DB size + Neo4j version to `benchmarks/results/*.json`.
-- [ ] **60 `audit:nofake`.** `scripts/audit-nofake.js` per §15, wired to `npm run audit:nofake`.
-- [ ] **61 README + lint + final checklist.** Setup, env vars, test-DB instructions, every box
-  in §15 ticked or honestly not.
+- [x] **57 `/api/report/data`.** Real counts and subgraphs; says "no data" instead of a mock. *(done)*
+- [x] **58 `public/report.html`.** Print-to-PDF A4, figures from live endpoints, analysis
+  labelled "analytical, not measured", DA-1/DA-2 reconciliations. *(done)*
+- [x] **59 Benchmarks.** `benchmarks/run.js` runs Q1–Q4 N times on the real DB, writes p50/p95/
+  max + DB size + Neo4j version to `benchmarks/results/*.json`. *(done)*
+- [x] **60 `audit:nofake`.** `scripts/audit-nofake.js` per §15, wired to `npm run audit:nofake`. *(done)*
+- [x] **61 README + lint + final checklist.** Setup, env vars, test-DB instructions, every box
+  in §15 ticked or honestly not. *(done)*

@@ -7,6 +7,8 @@
  */
 import { config } from '../config.js';
 
+import { effectiveProficiency } from './decay.js';
+
 export const SATISFIED = 'satisfied';
 export const BELOW = 'below';
 export const MISSING = 'missing';
@@ -20,8 +22,13 @@ export function requirementStatus(requirement, candidateSkill) {
   if (!candidateSkill) return MISSING;
   const minProficiency = requirement.min_proficiency ?? 1;
   const minYears = requirement.min_years ?? 0;
+  // Ticket 56: the same decay the Cypher applies; λ = 0 returns the stored value.
+  const proficiency = effectiveProficiency({
+    proficiency: candidateSkill.proficiency ?? 0,
+    lastUsedYear: candidateSkill.last_used_year,
+  });
   const ok =
-    (candidateSkill.proficiency ?? 0) >= minProficiency &&
+    proficiency >= minProficiency &&
     (candidateSkill.years ?? 0) >= minYears;
   return ok ? SATISFIED : BELOW;
 }

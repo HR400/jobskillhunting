@@ -8,7 +8,7 @@
  * A "Show as table" toggle exposes the same rows as an accessible table.
  * Plan §10.5: hovering a skill dispatches to the store.
  */
-import { setState, subscribe } from '../store.js';
+import { getState, setState, subscribe } from '../store.js';
 
 /**
  * @param {HTMLElement} container
@@ -47,8 +47,14 @@ export function initRadar(container) {
 
   // Hover highlight from store
   subscribe((state) => {
-    if (state.hover?.type === 'Skill') {
-      highlightAxis(state.hover.id);
+    const skillKey =
+      state.hover?.type === 'Skill'
+        ? state.hover.id
+        : state.selection?.type === 'Skill'
+          ? state.selection.id
+          : null;
+    if (skillKey) {
+      highlightAxis(skillKey);
     } else {
       clearHighlight();
     }
@@ -192,7 +198,15 @@ export function initRadar(container) {
       // Dispatch hover to store (plan §10.5)
       textEl
         .on('mouseover', () => setState({ hover: { type: 'Skill', id: a.skill_key || a.skill } }))
-        .on('mouseout', () => setState({ hover: null }));
+        .on('mouseout', () => setState({ hover: null }))
+        // Ticket 41: selecting an axis filters the linked views.
+        .on('click', () => {
+          const id = a.skill_key || a.skill;
+          const current = getState().selection;
+          setState({
+            selection: current?.type === 'Skill' && current.id === id ? null : { type: 'Skill', id },
+          });
+        });
     });
 
     // Legend

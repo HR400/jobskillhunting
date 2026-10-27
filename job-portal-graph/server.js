@@ -2,11 +2,13 @@ import { config } from './src/config.js';
 import { logger } from './src/lib/logger.js';
 import { verifyConnectivity, closeDriver } from './src/db/driver.js';
 import { runMigrations } from './src/db/migrate.js';
+import { probeGds } from './src/lib/gds.js';
 import { createApp } from './src/app.js';
 
 // ── Boot sequence ──────────────────────────────────────────────────────────
 await verifyConnectivity();
 await runMigrations();
+await probeGds();
 
 const app = createApp();
 

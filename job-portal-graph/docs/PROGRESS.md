@@ -335,3 +335,187 @@ Format: `## YYYY-MM-DD: <phase/ticket>` then what passed, what was skipped and w
 - Done-when checked: `tests/integration/reveal.test.js` verified sequential ordering, accurate canvas node/edge mapping strictly from stream data, reduced-motion parity, and verdict strip summary. Full test suite: 35 files / 156 tests green.
 - Skipped: linked brushing (radar ↔ canvas ↔ gap ↔ bars) is ticket 41.
 
+## 2026-10-27: Ticket 41 — linked views (Phase 4)
+
+- `public/js/canvas.js`: `initCanvas` takes `{onSelectNode, onHoverNode}` (a bare function still works), emits `hoverNode` / `blurNode` to the store, and exposes `highlight(id)` (dims everything but that node and its edges, restores on `null`) and `focus(id)` (select + centre).
+- `public/js/charts/radar.js`: axis labels select their skill on click (`selection`), toggle off on a second click, and stay highlighted while selected.
+- `public/js/charts/bars.js`: subscribes to the store for both `selection` (bar ring) and `hover`; hovering a skill marks every bar whose job requires it (`.bar-skill-match`).
+- `public/js/app.js`: one `applyLinks(state)` subscriber — hover/selection highlight on the canvas, selection focuses a job, selecting a skill filters the bars to jobs whose `matched_skill_keys` include it (restored when deselected). `window.__app` is a read-only check seam for Playwright.
+- Backend field: `RANKED_JOBS` also collects `s.skill_key AS matched_skill_keys` and the ranking route returns it — display names cannot be used as skill keys.
+- Done-when checked with `scripts/check-phase4-e2e.mjs` against the real server + test DB: radar hover marks the axis, glows the skill node (opacity 1 vs 0.25), matches both bars; clicking Neo4j filters the bars to jobs requiring it (job B excluded); clicking a bar opens the job in the inspector and focuses its canvas node. Full suite 156 tests green.
+- Skipped: gap-list highlighting and What-if re-scoring — their views arrive in tickets 43–44 and subscribe to the same store.
+
+## 2026-10-27: Ticket 42 — query drawer (Phase 4)
+
+- `public/js/inspector.js`: the drawer now shows query name, full Cypher, parameters, row count and `dbTimeMs` (exposed as `#inspector-db-time[data-db-time]` for the check).
+- `public/style.css`: `.query-drawer pre` is a scrollable monospace block using tokens.
+- Done-when checked in the same Playwright run by capturing the page's own Q1 response: `data-db-time` 5 equals the server's `meta.dbTimeMs` 5 (a fresh request would have a different number, so the check compares the response the drawer was built from).
+- Skipped: selecting a subgraph/ranking drawer variant — the drawer always shows the Q1 that produced the open inspector view.
+
+
+## 2026-10-27: Ticket 43 — what-if tab (Phase 4)
+
+- `public/js/whatif.js`: skill chips + add form, calls `GET /api/match/what-if` (read-only), renders delta and unlocked jobs with a "hypothetical" label, and subscribes to the store so the canvas outlines unlocked nodes.
+- `public/js/canvas.js`: `showHypothetical(ids)` / `clearHypothetical()` — outline width 5 while active, restores the stored width on reset.
+- `public/index.html` / `public/style.css`: `#mode-whatif` panel and chips/table styling.
+- Done-when checked in the Playwright run: rendered `+100%` equals the API's `matchPct` delta, the unlocked job is flagged in the table and outlined on the canvas, reset restores `borderWidth` 3 and clears the table and chips. No write path: the route uses `executeRead`.
+- Skipped: persisting a hypothetical set between reloads — it is a scratch view.
+
+## 2026-10-27: Ticket 44 — gap + referral views (Phase 4)
+
+- `public/js/charts/gap.js`: renders Q2 gaps in query order (mandatory first), marking each row `satisfied` / `below` / `missing` from the Q1 breakdown.
+- `public/js/charts/referral.js`: renders Q3 chains hop by hop with blind-safe `Candidate #XXXX` labels (client-side `blindRef`), no names.
+- `public/index.html` / `public/style.css`: `#gap-list` and `#referral-chain` slots plus row styling.
+- Done-when checked: gap order `python,javascript` matches Q2, all three states render (`python:missing`, `javascript:below`, `neo4j:satisfied`), three chains render and match Q3, and no chain text contains a real name.
+- Skipped: server-side blind rendering of referrals — ticket 45 centralised redaction for candidate payloads; referral chains carry no identity fields.
+
+## 2026-10-27: Ticket 45 — recruiter view (Phase 4)
+
+- `src/lib/blind.js`: `blindRef` (stable `Candidate #XXXX`) and `blindCandidate` — returns only `{cand_id, ref, unmasked}` at or below `BLIND_UNMASK_THRESHOLD`; above it returns name plus DOB/gender/email/phone and logs `'blind unmask'` with viewer, job and score.
+- `src/queries/q4Recruiter.js`: Q4 projects the candidate identity fields alongside `match_pct`.
+- `src/routes/recruiter.js`: maps every row through `blindCandidate`, keeps `cand_id` for existing consumers, and adds `candidate` + `blindThreshold` to the response.
+- `public/js/recruiter.js`: job picker → matrix (`data-masked`) + vis-network rings at 120/220/300 by band, with the job fixed at the centre.
+- `tests/unit/blind.test.js`: masked payload has no name/DOB/contact, unmask happens strictly above the threshold, ref is stable.
+- Done-when checked: Playwright matrix rows equal Q4 rows; the candidate above 75 is unmasked with a real name; the candidate below stays `Candidate #` with no name; 27 rings match the 27 rows and sit on the three bands; the server log carries the `blind unmask` event. Full suite 36 files / 161 tests green.
+- Skipped: recruiter write actions (shortlist/reject) — not in the ticket.
+## 2026-10-27: Ticket 46 — Phase 4 e2e (Phase 4)
+
+- `public/js/reveal.js`: an SSE error no longer falls back immediately — the browser's own retry gets one chance, and only a second error closes the stream and calls `onError` (plan §14).
+- `public/js/charts/bars.js`: Enter/Space on a focused bar now also dispatches `bars-select`, so the inspector opens from the keyboard exactly as it does on click.
+- `scripts/check-phase4-e2e.mjs`: added the 46 section — reveal verdict + drawn graph, inspector score/band/mandatory equal `GET /api/match/:cand/:job`, canvas skill click filters the bars like the radar does, focused bar + Enter opens that job, a reduced-motion context renders the same node count, one dropped stream reconnects and still completes, two drops reach the static-subgraph fallback.
+- Fixed while checking: the 41 bar-filter assertion assumed a subset; it now compares against `bar ids ∩ jobs requiring the skill`, which holds on a dirty test DB. The keyboard check waits for the inspector title to change (the previous title is already in the DOM while Q1 loads).
+- Done-when checked: 38 e2e checks green against the running server, twice (clean and accumulated test DB). Full suite 36 files / 161 tests green.
+- Skipped: no separate browser per section — the reconnect/fallback sections reuse the page with `page.route`, which is faster and exercises the same client code.
+## 2026-10-27: Ticket 47 — ingest core (Phase 5)
+
+- `src/ingest/registry.js`: adapter registry (`registerAdapter`, `getAdapter`, `listAdapters`). Details are `{ name, source, isConfigured(), fetchJobs({limit}) }`; `listAdapters` exposes only `name`, `source` and the configured flag, never keys.
+- `src/ingest/runner.js`: fetches, skips rows without `external_ref` (they cannot be deduped), and reports `fetched/created/duplicates/skipped/fetched_at`.
+- `src/queries/ingest.js`: `MERGE (j:Job {external_ref})` using the existing `job_ext_ref` constraint; `ON CREATE` sets `job_id`/`created_at`, always sets `job_title`, `job_status`, `descriptive`, `source`, `source_url`, `fetched_at`.
+- `src/routes/ingest.js`: `GET /api/ingest` (adapters + `capabilities.feeds`) and `POST /api/ingest/:adapter/run`, both guarded by `INGEST_ADMIN_TOKEN` (`x-ingest-token`, constant-time compare). No token configured → 503 with a reason; unknown adapter → 404; adapter not configured → 503.
+- `src/lib/errors.js`: added `UNAVAILABLE` (503) and `Errors.unavailable` for the honest disabled state (reused by Phase 6).
+- `src/config.js`: `INGEST_ADMIN_TOKEN` (default empty = ingest disabled).
+- `tests/integration/ingestCore.test.js`: test-only adapter driven through HTTP — first run creates 1 and skips the row with no ref; second run creates 0 with `duplicates: 1` and the DB holds exactly one job; source/source_url/fetched_at stored; 403 without token, 404 unknown, 503 unconfigured/disabled. `phase1Sweep` counts `UNAVAILABLE` as covered.
+- Done-when checked: the double-run test above. Full suite 37 files / 165 tests green (one unrelated flake in `applicationsApply` on a slow run, green alone and on re-run).
+- Skipped: no adapters are registered yet — Arbeitnow/Adzuna/ATS arrive in ticket 48.
+## 2026-10-27: Ticket 48 — real adapters + extracted requirements (Phase 5)
+
+- `src/ingest/http.js`: disk cache under `.cache/ingest` (6 h), 15 s fetch timeout, per-host spacing via `minIntervalMs`, honest error on non-2xx.
+- `src/ingest/text.js` + `src/ingest/extract.js`: HTML stripped for matching; a requirement is emitted only when a catalogue `name` or an `aliases[]` entry appears as a whole word (boundaries around alphanumerics, so `Java` never matches inside `JavaScript`). Output is sorted and carries no minimums.
+- `src/ingest/adapters/arbeitnow.js`, `adzuna.js`, `ats.js`: Arbeitnow pages until `limit`/no next link; Adzuna adds app id/key, country and 1 req/s spacing; ATS reads `ATS_{GREENHOUSE,LEVER,ASHBY}_BOARDS` lists. Each mapping keeps the public posting URL for attribution.
+- `src/ingest/index.js`: registers the three adapters; imported by `src/app.js` so `GET /api/ingest` lists them (`configured` from env flags/keys).
+- `src/ingest/runner.js` + `src/queries/ingest.js`: loads the skill catalogue once per run, attaches `REQUIRES_SKILL` edges with `min_proficiency: null`, `min_years: null`, `mandatory: false`, `requirement_source: 'extracted'`, and replaces old extracted edges before creating new ones. Reports a `requirements` count.
+- Fixed while testing: `OPTIONAL MATCH (j)-[old:REQUIRES_SKILL]->() DELETE old WITH j, row` multiplied the row per existing edge, so a re-run created duplicates; it now `collect(old)`s and deletes in a `FOREACH` (verified 2 → 2, not 4).
+- Config/env: `ADZUNA_COUNTRY`, `ATS_*_BOARDS`; `.cache/` gitignored.
+- Done-when checked: `ingestRequirements.test.js` — only `javascript`/`kubernetes` exact/alias hits are extracted with null minimums; a second run reports `created: 0` and leaves exactly 2 edges. Adapter mappers and cache behaviour unit-tested (hit once, refetch when stale). Full suite 41 files / 175 tests green.
+- Skipped: no live network call in tests; adapters' documented shapes are tested through their pure mappers.
+## 2026-10-27: Ticket 49 — ingested jobs in the read path + UI surfaces (Phase 5)
+
+- Read queries no longer require an employer. `LIST_JOBS`, `GET_JOB_BY_ID`, `RANKED_JOBS`, `UNSCORED_JOBS` and `Q1_SUBGRAPH` use `OPTIONAL MATCH (e:Employer)-[:POSTED]->(j)`; ranking/Q1 project `j.source` and `j.source_url`, and `/api/jobs` keeps the flat `emp_id`/`company_name` fields (both `null` for ingested jobs) so existing clients do not change shape.
+- `src/routes/match.js`: `employer` is `null` when the job has no employer; Q1 carries `source`/`source_url`; the subgraph omits the Employer node and POSTED edge instead of crashing.
+- `src/routes/meta.js`: `GET /api/meta/capabilities` reports `feeds` (any adapter configured) and the configured `adapters` (`name`, `source` only, never keys). Ticket 50 extends it.
+- UI: bars table gained a *Source* column linking the original posting; inspector header shows "Imported from <feed> · original posting"; `public/js/ingestUi.js` renders the unscored list and the plan §10.7 empty state, with *Import real jobs* and an operator-token field only when `capabilities.feeds` is true.
+- Fixed while testing (both were silent data bugs, not cosmetic):
+  - `WHERE` directly after `OPTIONAL MATCH` binds to the optional pattern, so the job list filters (status/q/skill/employer) matched optionally and every job still returned. Filters moved before the optional match, with employer filtering after a `WITH`.
+  - `OPTIONAL MATCH (e:Employer)-[:POSTED]->(j:Job {job_id})` leaves `j` null when there is no employer, so the subgraph 500'd on ingested jobs. The job is bound first, then the employer optionally, with `WHERE j IS NOT NULL` preserving the 404 for a missing job.
+- Done-when checked: `tests/integration/ingestVisibility.test.js` — a two-job test adapter run gives: list/by-id include `source`/`source_url` with null employer; the requirement-bearing job lands in `ranked` and the zero-requirement one in `unscored`, both with source; Q1 returns source fields; the subgraph has no Employer node or POSTED edge; capabilities hide `arbeitnow` when disabled and list it when enabled. Full suite 42 files / 179 tests green.
+- Browser smoke check against the port-3100 test instance (temp Playwright script, deleted after): ingested job shown in the bars table with a working source link, untagged job in the unscored list with its link, empty state hidden when jobs exist; with an empty DB the empty state explains the situation and the import form appears only when a feed is configured (`ENABLE_ARBEITNOW=true`).
+- Skipped: no permanent Playwright section for 49 — the temp check seeded ingested jobs directly and the durable coverage is the integration test above.
+## 2026-10-27: Ticket 50 — capabilities + GDS probe (Phase 6)
+
+- `src/lib/gds.js`: `CALL gds.version()` once at boot via `probeGds()`; a missing plugin or unreachable DB is caught and cached as `{ available: false, version: null }` (logged at info, not as a crash). `getGds()` probes lazily if a request arrives before boot's probe finishes, so tests and headless app creation still get an honest answer.
+- `server.js`: probe runs after connectivity + migrations, before `createApp()`.
+- `src/routes/meta.js`: `/api/meta/capabilities` now returns `{ esco, feeds, gds, gds_version, vector, adapters }`. `esco` from `ENABLE_ESCO`, `gds`/`gds_version` from the probe, `vector` only when both `EMBEDDINGS_PROVIDER` and `EMBEDDINGS_API_KEY` are set. Adapters still expose only `name`/`source`.
+- On the throwaway test instance (7688, no GDS plugin) the live answer is `gds: false, gds_version: null`, and boot logs `gds unavailable`.
+- Done-when checked: `tests/integration/capabilities.test.js` — all flags are booleans, `feeds` agrees with the adapter list, `gds` and `gds_version` are consistent, adapters leak no keys, ESCO and vector follow config toggles. Full suite 43 files / 182 tests green.
+- Skipped: no ESCO/GDS/vector feature endpoints yet — tickets 51–56 consume these flags.
+## 2026-10-27: Ticket 51 — PageRank referral authority (Phase 6)
+
+- `src/routes/analytics.js`: `GET /api/analytics/pagerank` projects `(:Candidate)-[:REFERS]->(:Candidate)` with `gds.graph.project`, streams `gds.pageRank.stream`, returns `{ method, gds_version, candidates: [{ cand_id, referrer_authority }] }`, and drops the projection in a `finally` (a stale projection is dropped first, missing one ignored).
+- Without the plugin the route answers `{ unavailable: '<reason>', candidates: [] }` with status 200 — no application-side approximation. Mounted at `/api/analytics` in `src/app.js`.
+- UI: `public/js/charts/referral.js` fetches authority once per page load, shows `referrer authority 0.123` as its own inline field next to each chain node, and prints the unavailable reason in a separate note when GDS is absent. `match_pct` is untouched.
+- Done-when checked: `tests/integration/analyticsPagerank.test.js` asserts the honest unavailable shape when `capabilities.gds` is false, and real numeric `referrer_authority` values (with no `match_pct`) when it is true. The e2e harness gained one check: the referral panel shows either numeric authority fields or an unavailable reason; on the GDS-free test instance it shows the reason. Full suite 43 files / 183 tests green; harness green on a dirty DB.
+- Skipped: the combined-view toggle/formula from plan §11.3 (not part of this ticket) and no PageRank fallback — GDS is the required dependency.
+## 2026-10-27: Ticket 52 — Louvain skill communities (Phase 6)
+
+- `GET /api/analytics/communities` projects `["Candidate", "Skill"]` over `HAS_SKILL` and streams `gds.louvain.stream`. Rows are folded in JS: candidates per community, skill names per community, and the label is the most frequent skill name **in that community's data** (ties broken alphabetically); clusters with no skill node fall back to `No shared skills`. Clusters are sorted by candidate count then label.
+- Response: `{ method, gds_version, clusters: [{ community, label, candidate_count, candidates, skills }] }`. Without GDS: `{ unavailable: '<reason>', clusters: [] }`.
+- Both analytics endpoints now drop the projection in a `finally`, so a failed run cannot leave a stale graph behind for the next request.
+- Done-when checked: `tests/integration/analyticsCommunities.test.js` — honest unavailable shape on the GDS-free test instance, and on a GDS-capable DB every `label` equals its cluster's top skill (or the documented fallback) with consistent counts. Full suite 43 files / 184 tests green.
+- Skipped: no UI panel for communities (not requested in the ticket) and the GDS branch remains untestable on 7688 — the installed GDS lives only on the main instance.
+## 2026-10-27: Ticket 53 — career path engine (Phase 6)
+
+- `src/queries/careerPath.js`: held/missing skills come from the real graph (`NOT EXISTS` a `HAS_SKILL` edge), and the Skill–Skill graph is a **Cypher projection** over `REQUIRES_SKILL` pairs: skills required by the same job are connected with `weight = 1 / co-occurrence`, emitted in both directions; rarer pairings are cheaper. No hand-written curriculum.
+- `src/services/careerPath.js`: `pickCareerSteps` keeps the cheapest Dijkstra path per missing skill, records `hops`, keeps the real `weight`, marks unreachable skills (`path: []`, `weight: null`), and orders steps nearest-first (ties alphabetical).
+- `src/routes/careerPath.js`: `GET /api/career-path/:candId/:jobId` validates both ids (404s like the other match routes), returns early with a message when nothing is missing (no GDS needed), otherwise runs one `gds.shortestPath.dijkstra.stream` per held×missing pair inside a projection that is dropped in a `finally`. Without GDS: `{ unavailable: '<reason>', steps: [] }`.
+- Done-when checked: `tests/unit/careerPath.test.js` covers cheapest-path selection, unreachable steps and ordering; `tests/integration/careerPath.test.js` covers 404s, the real missing-skill list, the honest unavailable branch, and the no-missing-skills message. The derived co-occurrence Cypher was also executed directly on the test DB: both directions returned with weight `1` for a one-job pair. Full suite 45 files / 189 tests green.
+- Skipped: no UI roadmap panel (not in the ticket); the GDS Dijkstra branch itself cannot run on the GDS-free 7688 instance.
+## 2026-10-27: Ticket 54 — blind hiring regression coverage (Phase 6)
+
+- The redaction itself landed with ticket 45: `src/lib/blind.js` keeps `{cand_id, ref, unmasked: false}` at or below `BLIND_UNMASK_THRESHOLD` (75), returns identity fields only strictly above it, and logs `{ event: 'blind unmask', candId, jobId }` server-side. Audit of the employer/recruiter routes confirms Q4 (`GET /api/recruiter/:empId/recommendations`) is the only one that carries other candidates; `GET /api/applications/me` only ever returns the caller's own row and the PATCH returns status fields, so neither needs projection.
+- Ticket 54 therefore adds the missing route-level proof instead of new redaction code: `tests/integration/blindRecruiter.test.js` seeds an 80 % and a 60 % candidate on a real employer job and asserts the response contract end to end.
+- Done-when checked: the 80 % row is `{unmasked: true, name, email}`, the 60 % row equals `{cand_id, ref: 'Candidate #XXXX', unmasked: false}` with no name/email anywhere in its JSON, `blindThreshold` matches config, `blind unmask` is logged once with the real ids, and nothing is logged for the masked candidate. Passes alone in ~11 s.
+- Full suite: 188 passed, 2 flakes — `blindRecruiter.test.js` beforeEach and `matchQ1.test.js` 404 both hit the 20 s hook/test timeout while the host was swapping (12.2 GB of 13.3 GB, Neo4j in a software-emulated x86 VM). Both files pass alone and the suite was green at 45 files / 189 tests earlier; the failures are timeouts, not assertions.
+- Skipped: no separate redaction projection per employer role (there is one candidate-carrying view), and no UI change — the recruiter panel already renders `candidate.unmasked` refs only.
+## 2026-10-27: Ticket 55 — vector search (Phase 6)
+
+- `src/db/migrate.js`: `CREATE VECTOR INDEX job_embedding IF NOT EXISTS FOR (n:Job) ON (n.embedding)` with `vector.dimensions: 1536` and `cosine`. Jobs are the only corpus — Candidate nodes have no résumé/summary text field in the schema, so there is nothing honest to embed for them; no index was invented for a field that does not exist.
+- `src/services/embeddings.js`: one real provider (`openai`, `text-embedding-3-small`, 1536 dims) called with `fetch`. `embeddingsUnavailableReason()` is the single source of truth for every missing/unsupported configuration, and `embed()` throws a 503 instead of returning a made-up vector when the call fails or the response has the wrong shape.
+- `src/routes/semantic.js`: `GET /api/search/semantic?q=&limit=` embeds the query and runs `db.index.vector.queryNodes('job_embedding', k, $vector)` followed by the usual optional employer match, returning real job fields plus the cosine `score`. Without a provider it answers `{ unavailable: '<reason>', jobs: [] }` with 200 and never queries the index. `POST /api/search/semantic/index?limit=` backfills jobs with no `embedding` using `db.create.setNodeVectorProperty` in one write transaction.
+- The operator guard moved out of `src/routes/ingest.js` into `src/middleware/adminToken.js` so ingest and the backfill share one constant-time check (503 when the token is unset, 403 when it is wrong).
+- `src/routes/meta.js`: `capabilities.vector` now comes from `embeddingsUnavailableReason() === null`, so a key with an unsupported provider no longer claims vector support.
+- Done-when checked: `tests/unit/embeddings.test.js` stubs only the network to assert the request shape (model + input, bearer key) and that HTTP/dimension failures surface as `UNAVAILABLE`; `tests/integration/semanticSearch.test.js` asserts the migration really created a `VECTOR` index, the honest unavailable reason for missing and unsupported providers, query validation, and the 503/403/503 backfill guard. The vector Cypher itself was executed against the test DB with a temporary node: `queryNodes` returned `score 1` and the node was deleted (0 left). Full suite 50 files / 197 tests green.
+- Skipped: no UI search box (not requested) and no live provider call, since `.env` has no embeddings key — the paid API is deliberately not exercised.
+## 2026-10-27: Ticket 56 — skill decay (Phase 6)
+
+- `config.SKILL_DECAY_LAMBDA` (0–1, default `0` = off) plus `.env.example`. The formula is `effective_proficiency = proficiency × exp(−λ × years_since_last_used)`; a missing `last_used_year` means there is no evidence of staleness, so that skill does not decay, and a future year clamps to 0 years.
+- `src/queries/decay.js` holds the Cypher expression once (it reads `$decayLambda`, so λ is never interpolated into query text) and it is applied by every scoring query: Q1, `RANKED_JOBS`, Q2 gap, Q4 recruiter, the SSE `STREAM_SCORED_JOBS` and the what-if stored baseline. `src/services/decay.js` is the JS mirror used by `requirementStatus`, so the subgraph edge states, the reference matcher and the Cypher agree.
+- Q1 now returns `decay: { lambda }`, and its breakdown rows carry `effective_proficiency` (rounded for display) and `years_since_last_used` next to the stored `candidate_proficiency`. `formatMatch` converts both new fields.
+- UI: when λ > 0 the inspector shows `Skill decay λ=…: effective = proficiency × exp(−λ × years since last used)` and the Held cell reads `1.47/5 (decayed from 4) · 6 yr`; at λ = 0 there is no note and the stored value is shown. While in that cell, the Required/Held columns were reading `min_proficiency`/`held_proficiency`, which do not exist in the Q1 payload — they always rendered `—`; both now use the real fields (`required_*`, `candidate_*`).
+- Done-when checked: `tests/unit/decay.test.js` covers λ = 0 as identity, the formula, missing/future last-used years and reference-matcher agreement. `tests/integration/skillDecay.test.js` proves a 4/5 skill last used 10 years ago scores 100/Strong at λ = 0 and 0/Low at λ = 0.1 in Q1, disappears from the ranking, becomes a `below` gap and is excluded from Q4, with the effective value and λ in the payload. `cypherVsReference` now passes `decayLambda: 0` explicitly (Cypher requires every referenced parameter). Browser check against the port-3100 test instance in both λ states, temp script deleted. Full suite 52 files / 203 tests green; the Phase 4 e2e harness still passes.
+- Skipped: no decay for `min_years` (the plan only defines proficiency decay), no per-candidate λ, and no display of decay in the SSE reveal edges — those show the stored `HAS_SKILL` value, which is what the edge actually holds.
+
+## 2026-10-27: Ticket 57 — /api/report/data (Phase 7)
+
+- `src/queries/report.js`: parameterised queries for total node count, total relationship count, label distribution, relationship type distribution, sample Candidate-Job finder, and DBMS component info (`dbms.components()`).
+- `src/routes/report.js`: mounted at `/api/report`. `GET /api/report/data` returns real counts, DBMS version and edition, and a representative Q1 subgraph formatted as `{ nodes, edges }` with candidate PII redacted. When the database is empty or no Candidate/Job pair exists, it honestly answers `{ has_data: false, message: 'No data in database to render query subgraph.', counts: { nodes: 0, relationships: 0 }, subgraph: null }` without generating mock nodes or fake statistics.
+- Done-when checked: `tests/integration/reportData.test.js` confirms honest no-data response on an empty DB, and real counts with non-null subgraph when data is present; privacy redaction verified. 2 tests green.
+- Skipped: benchmark latency figures (Ticket 59) and static HTML report rendering (Ticket 58).
+
+## 2026-10-27: Ticket 58 — public/report.html (Phase 7)
+
+- `public/report.html`: print-to-PDF research report (A4 print CSS `@page { size: A4 }`), inline SVG system topology (Browser ↔ Express 5 ↔ Neo4j 5), live query subgraph integration fetching `/api/report/data` (reporting honest no-data notice when empty without synthetic mocks), measured latency section pulling from `/api/report/benchmarks`, computational complexity slopegraph prominently labelled "analytical, not measured", and complete documentation of DA-1 normalisation (18 entities → 26 BCNF relations, BCNF table decompositions, Dependent omission) and §3.2 reconciliations (ASSESSED_FOR spelling, proficiency vs years distinction, mandatory skill enforcement, and 40% screening rule).
+- `public/js/app.js`: updated Report tab note to provide an active link opening `/report.html`.
+- Done-when checked: `tests/unit/reportPage.test.js` verifies file existence, A4 print styling, inline SVG topology, "analytical, not measured" badge, live endpoint integration, complete DA-1/DA-2 reconciliation text, and absence of forbidden fake data strings. 7 tests green.
+- Skipped: benchmark runner itself (Ticket 59).
+
+## 2026-10-27: Ticket 59 — benchmarks runner (Phase 7)
+
+- `benchmarks/stats.js`: pure statistical calculation functions for min, p50, p95, max, and mean with linear percentile interpolation.
+- `benchmarks/run.js`: connects to the live database, verifies connectivity, queries DBMS info and DB size, executes 3 warmup iterations then N measured runs (default 20) across Q1_MATCH, Q2_GAP, Q3_REFERRALS, and Q4_RECRUITER using `performance.now()`, and saves the results payload along with database sizes and Neo4j version to `benchmarks/results/latest.json` and a timestamped file. Records honest status when `RELATIONAL_URL` is not configured.
+- `package.json`: wired to `npm run bench`.
+- `src/routes/report.js`: added `GET /api/report/benchmarks` returning latest benchmark results or honest `{ available: false }` notice.
+- Done-when checked: `tests/unit/benchmarkRunner.test.js` verified percentile math and endpoint availability format; executed `npm run bench` against running Neo4j 5.20.0 community instance (20 iterations) writing verified statistics (p50: Q1 59.1 ms, Q2 45.9 ms, Q3 47.1 ms, Q4 45.0 ms) to `benchmarks/results/latest.json`.
+- Skipped: relational comparative benchmarks (no Oracle/PostgreSQL instance provisioned; labelled honestly).
+
+## 2026-10-27: Ticket 60 — audit:nofake (Phase 7)
+
+- `scripts/audit-nofake.js`: scans runtime directories (`src/`, `public/`, `server.js`, `benchmarks/`) excluding test suites and build artifacts for prohibited fake patterns: `faker`/`@faker-js`, un-allowlisted `Math.random` (allow-listed only for animation files), `lorem ipsum`, placeholder names (`John Doe`, `Jane Doe`), DA-1 sample names (`Ram Nishtha`, `J001`, `APP001`), prohibited seed/demo scripts, and test fixture leakage into runtime imports.
+- `package.json`: wired to `npm run audit:nofake`.
+- Done-when checked: `tests/unit/auditNofake.test.js` proves that synthetic violations in buffers are caught and that the repository passes; `npm run audit:nofake` executes and exits 0 with 0 violations found.
+- Skipped: none.
+
+## 2026-10-27: Ticket 61 — README + lint + final checklist (Phase 7)
+
+- `eslint.config.js`: flat ESLint config for Node.js / ES module parsing.
+- `package.json`: wired to `npm run lint`.
+- `README.md`: comprehensive documentation covering architecture, quickstart, docker container commands, environment variables reference, test database isolation guards, benchmark execution, Rule R1 no-fake auditing, and the research report.
+- `plan.md`: Definition of Done checklist verified and checked off:
+  - [x] Fresh clone setup and boot verified with sensible empty-state screen.
+  - [x] `npm run audit:nofake` passes with 0 violations.
+  - [x] Every number in UI traceable through Inspector to Query drawer.
+  - [x] Neo4j service resilience verified (driver reconnection and 503 during outages).
+  - [x] Redaction verified: no PII in logs, Account data absent from graph payloads, and blind-hiring masking active.
+  - [x] Mandatory-skill rules and 40% screening logic documented in research report alongside DA-1/DA-2 reconciliations.
+  - [x] `.env` not committed; `README.md` documents setup, env vars, and test runner.
+- Done-when checked: `npm run lint` clean (0 errors), `npm run audit:nofake` passes (0 violations), `npm run bench` records real measurements, and full test suite passes with 56 test files / 222 tests green.
+- Skipped: none.

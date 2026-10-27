@@ -334,6 +334,19 @@ body:not([data-mode='match']) .charts { display: none; }
   color: var(--color-ink-muted-48);
 }
 
+.query-drawer pre {
+  margin: var(--space-2xs) 0 var(--space-xs);
+  padding: var(--space-2xs);
+  max-height: 12rem;
+  overflow: auto;
+  background: var(--color-canvas);
+  border-radius: var(--radius-sm);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--text-fine-size);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 /* ── D3 Charts (Ticket 37) ───────────────────────────────────────────────── */
 .chart-toolbar {
   display: flex;
@@ -372,6 +385,8 @@ body:not([data-mode='match']) .charts { display: none; }
 .bar-rect { cursor: pointer; transition: opacity 0.15s; }
 .bar-rect:hover, .bar-rect:focus { opacity: 0.8; outline: none; }
 .bar-rect.bar-selected { stroke: var(--color-page-text); stroke-width: 2; }
+.bar-rect.bar-skill-match { stroke: var(--color-primary); stroke-width: 2.5; }
+.chart-table tr.bar-skill-match { background: color-mix(in srgb, var(--color-primary) 12%, transparent); }
 
 .chart-axis text { font-size: 9px; fill: var(--color-ink-muted-48); }
 .chart-axis line, .chart-axis path { stroke: var(--color-ink-muted-48); }
@@ -485,4 +500,122 @@ body:not([data-mode='match']) .charts { display: none; }
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ── What-if simulator (Ticket 43) ────────────────────────────────────────── */
+.mode-panel {
+  padding: var(--space-sm);
+  background: var(--color-surface-pearl);
+  border-radius: var(--radius-md);
+}
+
+.whatif-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: center;
+  margin-bottom: var(--space-xs);
+}
+
+.whatif-form input[type='text'] { flex: 1 1 12rem; }
+.whatif-form input[type='number'] { width: 5rem; }
+
+.whatif-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  list-style: none;
+  margin: 0 0 var(--space-xs);
+  padding: 0;
+}
+
+.whatif-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xxs);
+  padding: var(--space-xxs) var(--space-xs);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-fine-size);
+}
+
+.whatif-label {
+  font-size: var(--text-fine-size);
+  color: var(--color-ink-muted-48);
+}
+
+.whatif-table tr.whatif-unlocked td { font-weight: var(--text-headline-weight); }
+.whatif-table tr.whatif-unlocked td:last-child { color: var(--color-primary); }
+
+/* ── Gap list + referrals (Ticket 44) ─────────────────────────────────────── */
+.gap-table tr[data-skill-key] { cursor: default; }
+.gap-table tr.row-hovered { background: color-mix(in srgb, var(--color-primary) 16%, transparent); }
+
+.referral-list { display: grid; gap: var(--space-xxs); }
+
+.referral-chain {
+  font-size: var(--text-fine-size);
+  padding: var(--space-xxs) var(--space-xs);
+  border-left: 3px solid var(--color-primary);
+  background: var(--color-canvas);
+  border-radius: var(--radius-sm);
+}
+
+.referral-node { font-weight: var(--text-headline-weight); }
+.referral-arrow { color: var(--color-ink-muted-48); }
+
+/* ── Recruiter view (Ticket 45) ───────────────────────────────────────────── */
+.recruiter-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-sm);
+  align-items: start;
+}
+
+.recruiter-canvas {
+  min-height: 360px;
+  border: 1px solid var(--color-surface-pearl);
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 900px) {
+  .recruiter-body { grid-template-columns: 1fr; }
+}
+
+/* Ticket 49: empty state, imported-job sources and unscored list. */
+.empty-state {
+  margin: var(--space-md) 0;
+  padding: var(--space-md);
+  border: var(--border-hairline);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-pearl);
+}
+
+.import-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.import-form input,
+.import-form select {
+  padding: var(--space-xxs) var(--space-xs);
+  border: var(--border-hairline);
+  border-radius: var(--radius-sm);
+  background: var(--color-canvas);
+  color: inherit;
+}
+
+.source-line a {
+  color: var(--color-link);
+}
+
+.unscored-list {
+  margin: 0;
+  padding-left: var(--space-md);
+}
+
+.unscored-list li {
+  padding: var(--space-xxs) 0;
 }

@@ -81,6 +81,14 @@ const MIGRATIONS = [
     cypher:
       'CREATE INDEX skill_name IF NOT EXISTS FOR (n:Skill) ON (n.name)',
   },
+  {
+    // Ticket 55: dimensions are fixed to the provider's model; changing the
+    // model means a new index. Jobs are the only searchable text corpus.
+    id: 'index_job_embedding',
+    cypher:
+      'CREATE VECTOR INDEX job_embedding IF NOT EXISTS FOR (n:Job) ON (n.embedding) ' +
+      "OPTIONS { indexConfig: { `vector.dimensions`: 1536, `vector.similarity_function`: 'cosine' } }",
+  },
 ];
 
 /**

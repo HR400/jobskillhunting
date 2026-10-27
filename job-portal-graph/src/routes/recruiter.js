@@ -11,6 +11,7 @@ import { Errors } from '../lib/errors.js';
 import { config } from '../config.js';
 import { bandFor } from '../services/matching.js';
 import { queryMeta, toNumber } from '../lib/queryMeta.js';
+import { blindCandidate } from '../lib/blind.js';
 import { EXISTS_EMPLOYER } from '../queries/exists.js';
 import { Q4_RECOMMENDATIONS } from '../queries/q4Recruiter.js';
 import { ACCOUNT_BY_ID } from '../queries/session.js';
@@ -44,17 +45,38 @@ recruiterRouter.get(
       if (reps.records.length === 0) throw Errors.forbidden();
     }
 
-    const params = { empId, threshold: config.SCREEN_THRESHOLD, limit };
+    const params = {
+      empId,
+      threshold: config.SCREEN_THRESHOLD,
+      limit,
+      decayLambda: config.SKILL_DECAY_LAMBDA,
+    };
     const result = await executeRead((tx) => tx.run(Q4_RECOMMENDATIONS, params));
     res.json({
       empId,
       threshold: config.SCREEN_THRESHOLD,
+      blindThreshold: config.BLIND_UNMASK_THRESHOLD,
       recommendations: result.records.map((r) => {
         const matchPct = toNumber(r.get('match_pct'));
+        const candidate = blindCandidate(
+          {
+            cand_id: r.get('cand_id'),
+            fname: r.get('fname'),
+            lname: r.get('lname'),
+            dob: r.get('dob'),
+            gender: r.get('gender'),
+            email: r.get('email'),
+            phone: r.get('phone'),
+          },
+          matchPct,
+          config.BLIND_UNMASK_THRESHOLD,
+          { viewerId: req.auth.accountId, jobId: r.get('job_id') },
+        );
         return {
           job_id: r.get('job_id'),
           job_title: r.get('job_title'),
-          cand_id: r.get('cand_id'),
+          cand_id: candidate.cand_id,
+          candidate,
           match_pct: matchPct,
           band: bandFor(matchPct),
           mandatory_ok: r.get('mandatory_ok'),

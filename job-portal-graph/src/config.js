@@ -31,6 +31,8 @@ const schema = z.object({
   BAND_STRONG: z.coerce.number().min(0).max(100).default(75),
   BAND_MODERATE: z.coerce.number().min(0).max(100).default(40),
   BLIND_UNMASK_THRESHOLD: z.coerce.number().min(0).max(100).default(75),
+  // Ticket 56: skill decay λ; 0 keeps stored proficiency (feature off).
+  SKILL_DECAY_LAMBDA: z.coerce.number().min(0).max(1).default(0),
   ENFORCE_MANDATORY: z
     .preprocess((v) => v === 'true' || v === true, z.boolean())
     .default(true),
@@ -42,9 +44,14 @@ const schema = z.object({
     .default(false),
   ADZUNA_APP_ID: z.string().default(''),
   ADZUNA_APP_KEY: z.string().default(''),
+  ADZUNA_COUNTRY: z.string().default('gb'),
+  ATS_GREENHOUSE_BOARDS: z.string().default(''),
+  ATS_LEVER_BOARDS: z.string().default(''),
+  ATS_ASHBY_BOARDS: z.string().default(''),
   EMBEDDINGS_PROVIDER: z.string().default(''),
   EMBEDDINGS_API_KEY: z.string().default(''),
   RELATIONAL_URL: z.string().default(''),
+  INGEST_ADMIN_TOKEN: z.string().default(''),
 });
 
 const parsed = schema.safeParse(process.env);

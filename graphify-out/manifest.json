@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "job-portal-graph/package.json": {
-    "mtime": 1793039837.4263778,
-    "seen": 1793045171.8617148,
-    "ast_hash": "7fd4f6aef08a6be30e4b7d76284b26b3",
+    "mtime": 1793102530.8434677,
+    "seen": 1793102616.7113442,
+    "ast_hash": "ec82948244687f3f3c55af8707196b13",
     "semantic_hash": ""
   },
   "job-portal-graph/scripts/smoke-driver.js": {
@@ -18,21 +18,21 @@
     "semantic_hash": ""
   },
   "job-portal-graph/server.js": {
-    "mtime": 1793044980.1096513,
-    "seen": 1793045171.861717,
-    "ast_hash": "1bbf6aedf4c32d092c933b227e9c14e3",
+    "mtime": 1793084163.2751217,
+    "seen": 1793101935.044933,
+    "ast_hash": "0129c60971d3b67532170abc0de1b524",
     "semantic_hash": ""
   },
   "job-portal-graph/src/app.js": {
-    "mtime": 1793053382.9105814,
-    "seen": 1793053743.7078998,
-    "ast_hash": "bc0f9a8f9c27e278a2b5319bbd4b3663",
+    "mtime": 1793101914.320448,
+    "seen": 1793101935.0449338,
+    "ast_hash": "4e01f9128891a48596b30d2a6d75d6d4",
     "semantic_hash": ""
   },
   "job-portal-graph/src/config.js": {
-    "mtime": 1793047480.205375,
-    "seen": 1793047793.0831401,
-    "ast_hash": "ba8394a05b3f28064ec02f01af9b2d43",
+    "mtime": 1793097659.4301126,
+    "seen": 1793101935.044935,
+    "ast_hash": "aad7c04753d58d95aed11b50fb7ce22e",
     "semantic_hash": ""
   },
   "job-portal-graph/src/db/driver.js": {
@@ -42,9 +42,9 @@
     "semantic_hash": ""
   },
   "job-portal-graph/src/db/migrate.js": {
-    "mtime": 1793043015.6987944,
-    "seen": 1793045171.86172,
-    "ast_hash": "3bc13613917379ab75a04f57e1a3dc22",
+    "mtime": 1793096434.6334386,
+    "seen": 1793101935.044936,
+    "ast_hash": "c6c02afabc2fc079f7ab5b4ad0a3ca8c",
     "semantic_hash": ""
   },
   "job-portal-graph/src/db/tx.js": {
@@ -60,9 +60,9 @@
     "semantic_hash": ""
   },
   "job-portal-graph/src/lib/errors.js": {
-    "mtime": 1793043074.6481724,
-    "seen": 1793045171.8617222,
-    "ast_hash": "ec702449a96088b57ba7ee10bd37be62",
+    "mtime": 1793077463.8382301,
+    "seen": 1793101935.044947,
+    "ast_hash": "abe812d6571f93a51b9143dc10f3020a",
     "semantic_hash": ""
   },
   "job-portal-graph/src/lib/logger.js": {
@@ -228,9 +228,9 @@
     "semantic_hash": ""
   },
   "TICKETS.md": {
-    "mtime": 1793071965.6185584,
-    "seen": 1793071996.580485,
-    "ast_hash": "5ab78e00e4c79fd9ef25fd07b344e466",
+    "mtime": 1793102747.8161721,
+    "seen": 1793102757.225006,
+    "ast_hash": "709b41672f0cf2c7b69ec891bf0654c8",
     "semantic_hash": ""
   },
   "job-portal-graph/DESIGN.md": {
@@ -240,15 +240,15 @@
     "semantic_hash": ""
   },
   "job-portal-graph/docs/PROGRESS.md": {
-    "mtime": 1793071986.9451635,
-    "seen": 1793071996.580487,
-    "ast_hash": "f0955f1938432faa78ba5e88313c30f5",
+    "mtime": 1793102734.679387,
+    "seen": 1793102757.225009,
+    "ast_hash": "bfe2ddcd30f69d3a60494cf455dd561e",
     "semantic_hash": ""
   },
   "plan.md": {
-    "mtime": 1793038479.479592,
-    "seen": 1793045171.861742,
-    "ast_hash": "4ce92f681e88821da9858cc1fbfb5edc",
+    "mtime": 1793102603.01327,
+    "seen": 1793102616.711471,
+    "ast_hash": "456989c0a0957c1e372dc7901c23f189",
     "semantic_hash": ""
   },
   "job-portal-graph/src/queries/candidates.js": {
@@ -318,14 +318,14 @@
     "semantic_hash": ""
   },
   "job-portal-graph/src/queries/jobs.js": {
-    "mtime": 1793046789.0930116,
-    "seen": 1793046972.14565,
-    "ast_hash": "ba38998f6181030f902d3afb935179c1",
+    "mtime": 1793083394.4435077,
+    "seen": 1793101935.0449631,
+    "ast_hash": "8087b6038e215838fe9792991cdd6187",
     "semantic_hash": ""
   },
   "job-portal-graph/src/routes/jobs.js": {
-    "mtime": 1793046808.6230068,
-    "seen": 1793046972.1456552,
+    "mtime": 1793083109.9512827,
+    "seen": 1793101935.044978,
     "ast_hash": "903cec43e41f1cc298290c84729c5d9e",
     "semantic_hash": ""
   },
@@ -348,9 +348,9 @@
     "semantic_hash": ""
   },
   "job-portal-graph/tests/integration/phase1Sweep.test.js": {
-    "mtime": 1793046881.1156616,
-    "seen": 1793046972.145665,
-    "ast_hash": "2fd927ef48634c4ab1e905ea0aa6687a",
+    "mtime": 1793077820.5001607,
+    "seen": 1793101935.045007,
+    "ast_hash": "e0da858567a153c3eeaa24736b8517c2",
     "semantic_hash": ""
   },
   "job-portal-graph/src/lib/queryMeta.js": {
@@ -360,9 +360,9 @@
     "semantic_hash": ""
   },
   "job-portal-graph/src/queries/candidateRanking.js": {
-    "mtime": 1793047642.1689208,
-    "seen": 1793047793.083153,
-    "ast_hash": "a55fe30cd7981dc075dc9de27a3acf41",
+    "mtime": 1793097669.6802375,
+    "seen": 1793101935.044957,
+    "ast_hash": "08265f4de4da517021764df6f5b62399",
     "semantic_hash": ""
   },
   "job-portal-graph/src/queries/exists.js": {
@@ -372,33 +372,33 @@
     "semantic_hash": ""
   },
   "job-portal-graph/src/queries/q1Match.js": {
-    "mtime": 1793047511.733642,
-    "seen": 1793047793.083157,
-    "ast_hash": "7af220ac3fbebba65486bd50739d69f5",
+    "mtime": 1793098349.1618788,
+    "seen": 1793101935.044965,
+    "ast_hash": "54776121f61f41fa061ef43672778378",
     "semantic_hash": ""
   },
   "job-portal-graph/src/queries/q2Gap.js": {
-    "mtime": 1793047724.4064448,
-    "seen": 1793047793.083157,
-    "ast_hash": "1367bc90e5bcdda204b485d20910dd0e",
+    "mtime": 1793097673.586195,
+    "seen": 1793101935.044966,
+    "ast_hash": "86f06f7ddbda547355c3a50ec2361098",
     "semantic_hash": ""
   },
   "job-portal-graph/src/routes/gap.js": {
-    "mtime": 1793047724.4065979,
-    "seen": 1793047793.083162,
-    "ast_hash": "9122594d995bd9e222c1bf0b888202cd",
+    "mtime": 1793097714.3943243,
+    "seen": 1793101935.0449762,
+    "ast_hash": "bd6b03f994244f5115a88446a76cca7e",
     "semantic_hash": ""
   },
   "job-portal-graph/src/routes/match.js": {
-    "mtime": 1793054364.1468291,
-    "seen": 1793071951.943632,
-    "ast_hash": "53b03ec3fc5edbba61967920f6ff9f26",
+    "mtime": 1793097714.3947115,
+    "seen": 1793101935.0449789,
+    "ast_hash": "6dbd4c901016ddb6a5633eebef21554b",
     "semantic_hash": ""
   },
   "job-portal-graph/src/services/matching.js": {
-    "mtime": 1793047480.2049856,
-    "seen": 1793047793.083165,
-    "ast_hash": "0601d6d48a7f22450d9f3b51cf3113fe",
+    "mtime": 1793097694.664066,
+    "seen": 1793101935.044986,
+    "ast_hash": "d838a28c5715012545598f170f39367f",
     "semantic_hash": ""
   },
   "job-portal-graph/tests/integration/candidateRanking.test.js": {
@@ -438,21 +438,21 @@
     "semantic_hash": ""
   },
   "job-portal-graph/src/queries/q4Recruiter.js": {
-    "mtime": 1793048111.1464455,
-    "seen": 1793048552.785975,
-    "ast_hash": "9609874a53fb0433dc667d21846ba9bf",
+    "mtime": 1793097677.9672534,
+    "seen": 1793101935.044967,
+    "ast_hash": "624fe9ed6b82a461a4c2d75bdbf900b6",
     "semantic_hash": ""
   },
   "job-portal-graph/src/routes/applications.js": {
-    "mtime": 1793048571.260252,
-    "seen": 1793053743.707924,
-    "ast_hash": "ec4d9f9f42280f04ac0c7185d333ed9d",
+    "mtime": 1793097706.090197,
+    "seen": 1793101935.0449731,
+    "ast_hash": "834637795ff541351636476c480bfd7e",
     "semantic_hash": ""
   },
   "job-portal-graph/src/routes/recruiter.js": {
-    "mtime": 1793048115.6371484,
-    "seen": 1793048552.785984,
-    "ast_hash": "0c95ea6e88a4c8d79e5ff95f0140e48b",
+    "mtime": 1793097706.0896838,
+    "seen": 1793101935.04498,
+    "ast_hash": "b73b7c1e52007bddcde60dfafe91b226",
     "semantic_hash": ""
   },
   "job-portal-graph/src/routes/referrals.js": {
@@ -492,15 +492,15 @@
     "semantic_hash": ""
   },
   "job-portal-graph/public/js/app.js": {
-    "mtime": 1793071825.6398163,
-    "seen": 1793071951.94359,
-    "ast_hash": "c703f23ea683e15ecf8201a2cedbf2e2",
+    "mtime": 1793102083.422431,
+    "seen": 1793102101.168384,
+    "ast_hash": "84d70b7718b379517fa419d63c4dfd62",
     "semantic_hash": ""
   },
   "job-portal-graph/public/js/canvas.js": {
-    "mtime": 1793053429.8619,
-    "seen": 1793053743.707893,
-    "ast_hash": "9a624c1a03068fb5bf6ff8c22e9544cb",
+    "mtime": 1793075267.847373,
+    "seen": 1793101935.044919,
+    "ast_hash": "0ccde73a587cfbec50da3c718fdafbba",
     "semantic_hash": ""
   },
   "job-portal-graph/public/js/forms.js": {
@@ -510,9 +510,9 @@
     "semantic_hash": ""
   },
   "job-portal-graph/public/js/inspector.js": {
-    "mtime": 1793071556.8650286,
-    "seen": 1793071951.9435961,
-    "ast_hash": "4c170020b1eaee4c93ba793ffbadafa7",
+    "mtime": 1793098431.8002293,
+    "seen": 1793101935.044925,
+    "ast_hash": "5394e4e4de7044b4d4f7a380b11ba164",
     "semantic_hash": ""
   },
   "job-portal-graph/public/js/smoke.js": {
@@ -534,9 +534,9 @@
     "semantic_hash": ""
   },
   "job-portal-graph/src/queries/whatIf.js": {
-    "mtime": 1793050071.126645,
-    "seen": 1793053743.707923,
-    "ast_hash": "81d72f757c5321427bb0a90e940381a2",
+    "mtime": 1793097689.9579766,
+    "seen": 1793101935.044971,
+    "ast_hash": "7acea45998790130502c4db72764a867",
     "semantic_hash": ""
   },
   "job-portal-graph/src/services/whatIf.js": {
@@ -552,9 +552,9 @@
     "semantic_hash": ""
   },
   "job-portal-graph/tests/integration/cypherVsReference.test.js": {
-    "mtime": 1793050846.1170263,
-    "seen": 1793053743.70794,
-    "ast_hash": "15500a1a35bc09b6601347b4b99e6df1",
+    "mtime": 1793097893.2826262,
+    "seen": 1793101935.0449998,
+    "ast_hash": "450e4dec007244d032219f05adc751bd",
     "semantic_hash": ""
   },
   "job-portal-graph/tests/integration/whatIf.test.js": {
@@ -594,9 +594,9 @@
     "semantic_hash": ""
   },
   "job-portal-graph/public/index.html": {
-    "mtime": 1793054075.3938797,
-    "seen": 1793071951.9436722,
-    "ast_hash": "d07d8c4280542134189abcbe117009af",
+    "mtime": 1793083254.0342128,
+    "seen": 1793101935.045036,
+    "ast_hash": "46db4158492a0b26847e92e7f842eb07",
     "semantic_hash": ""
   },
   "job-portal-graph/public/smoke.html": {
@@ -630,21 +630,21 @@
     "semantic_hash": ""
   },
   "job-portal-graph/public/js/charts/bars.js": {
-    "mtime": 1793054009.5912826,
-    "seen": 1793071951.943593,
-    "ast_hash": "52e5c6ee93cff4cf024a0e8ed424fd65",
+    "mtime": 1793083177.4986627,
+    "seen": 1793101935.04492,
+    "ast_hash": "6dd0e4bb430fc7840876eb27457b1710",
     "semantic_hash": ""
   },
   "job-portal-graph/public/js/charts/radar.js": {
-    "mtime": 1793054052.2868648,
-    "seen": 1793071951.943594,
-    "ast_hash": "34a553b557d487f40a819bd4a4fdf740",
+    "mtime": 1793073239.3470976,
+    "seen": 1793101935.044922,
+    "ast_hash": "fc43241df967da970c04f60abe8ae626",
     "semantic_hash": ""
   },
   "job-portal-graph/public/js/reveal.js": {
-    "mtime": 1793071802.0454147,
-    "seen": 1793071951.943597,
-    "ast_hash": "0c436cc9e79f4e266b43e6475e89004f",
+    "mtime": 1793076867.5966558,
+    "seen": 1793101935.044927,
+    "ast_hash": "ecd3e7ade7ee2ab3240c981db1a58285",
     "semantic_hash": ""
   },
   "job-portal-graph/scripts/check-phase3-smoke.mjs": {
@@ -654,9 +654,9 @@
     "semantic_hash": ""
   },
   "job-portal-graph/src/queries/matchStream.js": {
-    "mtime": 1793054287.3832743,
-    "seen": 1793071951.9436202,
-    "ast_hash": "fcbe7e1984e5bc99303805b1cf637020",
+    "mtime": 1793097685.9608994,
+    "seen": 1793101935.044964,
+    "ast_hash": "7f73d0f32792b29eb61c471d96bbde51",
     "semantic_hash": ""
   },
   "job-portal-graph/tests/integration/charts.test.js": {
@@ -735,6 +735,420 @@
     "mtime": 1793071676.3475852,
     "seen": 1793071951.94368,
     "ast_hash": "ba48afa982c6de7a66652836a082eafa",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/public/js/charts/gap.js": {
+    "mtime": 1793075429.9783063,
+    "seen": 1793101935.0449212,
+    "ast_hash": "deb5412b5ec79744a65ca42ab18372a3",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/public/js/charts/referral.js": {
+    "mtime": 1793084584.4348397,
+    "seen": 1793101935.0449228,
+    "ast_hash": "581fc609aaf2b99fd61d5494b5b8d4c6",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/public/js/ingestUi.js": {
+    "mtime": 1793083240.767623,
+    "seen": 1793101935.044925,
+    "ast_hash": "f3b5c53f3d81db2e06c9468f882516bf",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/public/js/recruiter.js": {
+    "mtime": 1793076139.422367,
+    "seen": 1793101935.044926,
+    "ast_hash": "f306505f03a8f71d44635bba87f698f5",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/public/js/whatif.js": {
+    "mtime": 1793075159.3677278,
+    "seen": 1793101935.044929,
+    "ast_hash": "bb0d315e54764ea9dcf04e2be7dd9ab6",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/scripts/check-phase4-e2e.mjs": {
+    "mtime": 1793084609.144386,
+    "seen": 1793101935.0449321,
+    "ast_hash": "3dd16baa448cb78fb4d85a3d6c594814",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/ingest/adapters/adzuna.js": {
+    "mtime": 1793081852.4027667,
+    "seen": 1793101935.044938,
+    "ast_hash": "c61fc0d506e7cb33982cd71e0dc08be2",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/ingest/adapters/arbeitnow.js": {
+    "mtime": 1793081852.4027963,
+    "seen": 1793101935.044939,
+    "ast_hash": "2aec4be01af2034f9667305fdafa5eca",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/ingest/adapters/ats.js": {
+    "mtime": 1793081852.4027476,
+    "seen": 1793101935.044939,
+    "ast_hash": "946d101d09555e5f69deee0b364241fd",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/ingest/extract.js": {
+    "mtime": 1793081836.3303723,
+    "seen": 1793101935.044941,
+    "ast_hash": "41612e3a1de4bfd079a923d38da2b4b7",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/ingest/http.js": {
+    "mtime": 1793081836.3258839,
+    "seen": 1793101935.0449421,
+    "ast_hash": "66d687d2bef2881185ca34cc9b01f2bf",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/ingest/index.js": {
+    "mtime": 1793081872.7112803,
+    "seen": 1793101935.044943,
+    "ast_hash": "23b2bfa1f4accea54ed845c88c8ec560",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/ingest/registry.js": {
+    "mtime": 1793077457.2731135,
+    "seen": 1793101935.044943,
+    "ast_hash": "1315550a9a48dea772c17b00cd2c146c",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/ingest/runner.js": {
+    "mtime": 1793081896.5406716,
+    "seen": 1793101935.0449438,
+    "ast_hash": "1d06aac06704e850a61f9c664ff6d80c",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/ingest/text.js": {
+    "mtime": 1793081836.3258896,
+    "seen": 1793101935.044945,
+    "ast_hash": "08d528f92b05eaa88748ed56825f8d9d",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/lib/blind.js": {
+    "mtime": 1793075937.7360785,
+    "seen": 1793101935.044946,
+    "ast_hash": "7c3b454b43dc859e1cc7ea8a011cb7b7",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/lib/gds.js": {
+    "mtime": 1793084121.3527415,
+    "seen": 1793101935.0449479,
+    "ast_hash": "f2764389c321206199bd1eea6b92f239",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/middleware/adminToken.js": {
+    "mtime": 1793096424.3504837,
+    "seen": 1793101935.0449522,
+    "ast_hash": "9867fa8d4ba6e13a6ad217cc3e8dda61",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/queries/careerPath.js": {
+    "mtime": 1793085831.1890845,
+    "seen": 1793101935.04496,
+    "ast_hash": "18b7814707af88b75931fc086b13701e",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/queries/decay.js": {
+    "mtime": 1793097651.9802337,
+    "seen": 1793101935.04496,
+    "ast_hash": "1b5d4113fe1684da5014b740e1cf8505",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/queries/ingest.js": {
+    "mtime": 1793082144.5211813,
+    "seen": 1793101935.044962,
+    "ast_hash": "354ab6d83626be17cd8bfedecb956361",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/queries/report.js": {
+    "mtime": 1793101868.0480216,
+    "seen": 1793101935.0449688,
+    "ast_hash": "87bb01d536385826373ddb9e4752f5d1",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/routes/analytics.js": {
+    "mtime": 1793084941.3526878,
+    "seen": 1793101935.044972,
+    "ast_hash": "b2531b7ab29772dc21febc86b779a470",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/routes/careerPath.js": {
+    "mtime": 1793085980.772256,
+    "seen": 1793101935.044975,
+    "ast_hash": "49e23e0d9b1625971d9cfade3e5c53a7",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/routes/ingest.js": {
+    "mtime": 1793096443.821704,
+    "seen": 1793101935.044977,
+    "ast_hash": "66b14c2f337372625691a238419b3790",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/routes/meta.js": {
+    "mtime": 1793096450.9674602,
+    "seen": 1793101935.0449789,
+    "ast_hash": "67afe594fd37a90d4440db05b0e98acd",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/routes/report.js": {
+    "mtime": 1793102281.1285732,
+    "seen": 1793102357.119043,
+    "ast_hash": "161a4bc367aa2f1734a5e53f8a169cc7",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/routes/semantic.js": {
+    "mtime": 1793096434.633523,
+    "seen": 1793101935.044982,
+    "ast_hash": "9c77aa08584ce7981aac4338d114ea81",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/services/careerPath.js": {
+    "mtime": 1793085936.983313,
+    "seen": 1793101935.044984,
+    "ast_hash": "4c3796015ede9acaa9011be20dc3eab0",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/services/decay.js": {
+    "mtime": 1793097651.9800763,
+    "seen": 1793101935.044985,
+    "ast_hash": "757dd2cf9c1a523b6987a2cc9c61f66e",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/src/services/embeddings.js": {
+    "mtime": 1793096424.3504946,
+    "seen": 1793101935.044985,
+    "ast_hash": "94631da7cf3aba11aa8377c316c1b91d",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/integration/analyticsCommunities.test.js": {
+    "mtime": 1793084950.0477014,
+    "seen": 1793101935.044991,
+    "ast_hash": "007efcdc0324fa4c0229a84322eb9d3c",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/integration/analyticsPagerank.test.js": {
+    "mtime": 1793084601.516964,
+    "seen": 1793101935.044992,
+    "ast_hash": "484f4f53e49c2576b423830c24509f03",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/integration/blindRecruiter.test.js": {
+    "mtime": 1793087016.9729068,
+    "seen": 1793101935.044994,
+    "ast_hash": "74dddf1df53168841e4c3e481824ac90",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/integration/capabilities.test.js": {
+    "mtime": 1793084177.4919171,
+    "seen": 1793101935.044998,
+    "ast_hash": "836a6ba5407ba5d94977d4d76f96bae9",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/integration/careerPath.test.js": {
+    "mtime": 1793086268.8372314,
+    "seen": 1793101935.044999,
+    "ast_hash": "a1bd6024ec248bc833a89a75dde4addd",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/integration/ingestCore.test.js": {
+    "mtime": 1793077582.325432,
+    "seen": 1793101935.045002,
+    "ast_hash": "40aa014690819179e44b5973cd9d25c3",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/integration/ingestRequirements.test.js": {
+    "mtime": 1793081950.24372,
+    "seen": 1793101935.045003,
+    "ast_hash": "9a359ae5ee64e7bbc6dc6161f9f0ec3c",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/integration/ingestVisibility.test.js": {
+    "mtime": 1793083495.5757666,
+    "seen": 1793101935.045003,
+    "ast_hash": "c5a70a6b2a44c834d4d74331de88c961",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/integration/reportData.test.js": {
+    "mtime": 1793101846.526835,
+    "seen": 1793101935.045009,
+    "ast_hash": "b647873317fb5dd8d25034f44db9d0e8",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/integration/semanticSearch.test.js": {
+    "mtime": 1793097397.900359,
+    "seen": 1793101935.045011,
+    "ast_hash": "aacbfd741383d0b806854c1a5cc26132",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/integration/skillDecay.test.js": {
+    "mtime": 1793097800.194565,
+    "seen": 1793101935.045011,
+    "ast_hash": "80403d229b2ef2d5037588e926f8e0d5",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/unit/blind.test.js": {
+    "mtime": 1793075873.6536024,
+    "seen": 1793101935.045019,
+    "ast_hash": "9d247c78135413e3f2cb8cc122d84e28",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/unit/careerPath.test.js": {
+    "mtime": 1793086203.6972957,
+    "seen": 1793101935.045019,
+    "ast_hash": "17b205bb27e810deea1ba6c21334d6a9",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/unit/decay.test.js": {
+    "mtime": 1793097800.1948545,
+    "seen": 1793101935.0450199,
+    "ast_hash": "19b48dd86728a61762364482b244f0aa",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/unit/embeddings.test.js": {
+    "mtime": 1793097370.540033,
+    "seen": 1793101935.0450208,
+    "ast_hash": "525ef826d7c58ab9707d7b866ac59681",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/unit/extract.test.js": {
+    "mtime": 1793081920.8728695,
+    "seen": 1793101935.045022,
+    "ast_hash": "33dc95d641181f2e12a1e93705294e52",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/unit/ingestAdapters.test.js": {
+    "mtime": 1793081920.8729007,
+    "seen": 1793101935.045025,
+    "ast_hash": "12fe3a99f24051e9f2efda97eab225d0",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/unit/ingestHttp.test.js": {
+    "mtime": 1793081920.8734252,
+    "seen": 1793101935.045027,
+    "ast_hash": "403a2f9e867fc510bdeaaccfbf1dc066",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/scripts/out-phase4/41-skill-hover.png": {
+    "mtime": 1793098398.19062,
+    "seen": 1793101935.045045,
+    "ast_hash": "d80f851d2ac709e11ccdcf59ada07cbb",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/scripts/out-phase4/42-query-drawer.png": {
+    "mtime": 1793098401.338662,
+    "seen": 1793101935.045046,
+    "ast_hash": "d80f851d2ac709e11ccdcf59ada07cbb",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/scripts/out-phase4/43-whatif.png": {
+    "mtime": 1793098403.4660718,
+    "seen": 1793101935.045047,
+    "ast_hash": "8bc14751630b0e40ab7643df8b454ad6",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/scripts/out-phase4/44-gap-referrals.png": {
+    "mtime": 1793098404.3734124,
+    "seen": 1793101935.045047,
+    "ast_hash": "e1cad2decbf9a080c1fbc9bf179b77ae",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/scripts/out-phase4/45-recruiter.png": {
+    "mtime": 1793098406.8684835,
+    "seen": 1793101935.045048,
+    "ast_hash": "9b16008a277b2fd58b9b999b41fd9df7",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/scripts/out-phase4/46-fallback.png": {
+    "mtime": 1793098417.8136988,
+    "seen": 1793101935.0450492,
+    "ast_hash": "3b8bbec87668092a1f9069eaf782689d",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/scripts/out-phase4/49-empty-state.png": {
+    "mtime": 1793084003.9103765,
+    "seen": 1793101935.0450492,
+    "ast_hash": "1294e50b107c7decc385a2d167e1481a",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/scripts/out-phase4/49-ingest-ui.png": {
+    "mtime": 1793083918.2566328,
+    "seen": 1793101935.0450501,
+    "ast_hash": "b73b10f11776bb17d2bbab3879bba45d",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/scripts/out-phase4/56-decay.png": {
+    "mtime": 1793098384.4687002,
+    "seen": 1793101935.0450501,
+    "ast_hash": "44be53f2d40e7bfd3567ece73183fc96",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/unit/reportPage.test.js": {
+    "mtime": 1793101995.1586409,
+    "seen": 1793102101.168493,
+    "ast_hash": "18fe26b0adf31918da96c1e36efd0de0",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/public/report.html": {
+    "mtime": 1793102058.347406,
+    "seen": 1793102101.168502,
+    "ast_hash": "c6797d53abf29cb04306599719b59a6f",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/benchmarks/results/benchmark-2026-10-27T11-58-53-211Z.json": {
+    "mtime": 1793102333.2115324,
+    "seen": 1793102357.118966,
+    "ast_hash": "2e226cd6e4c32eaadda1f99d783688a2",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/benchmarks/results/latest.json": {
+    "mtime": 1793102333.211706,
+    "seen": 1793102357.1189702,
+    "ast_hash": "2e226cd6e4c32eaadda1f99d783688a2",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/benchmarks/run.js": {
+    "mtime": 1793102264.1989703,
+    "seen": 1793102357.1189718,
+    "ast_hash": "37fa9c744893bf2e0dc20cc20c492fa5",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/benchmarks/stats.js": {
+    "mtime": 1793102165.8614933,
+    "seen": 1793102357.118973,
+    "ast_hash": "c1c2d3682b67d88ea05de3d9475f3068",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/unit/benchmarkRunner.test.js": {
+    "mtime": 1793102148.015669,
+    "seen": 1793102357.119081,
+    "ast_hash": "90c532092944ea4eb93947ef987562f4",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/scripts/audit-nofake.js": {
+    "mtime": 1793102545.4613047,
+    "seen": 1793102616.711358,
+    "ast_hash": "01d42f1c61da0eedfff09cd58dc247eb",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/tests/unit/auditNofake.test.js": {
+    "mtime": 1793102406.7350626,
+    "seen": 1793102473.764569,
+    "ast_hash": "2735fd6e131571b76fe8433132b3430d",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/eslint.config.js": {
+    "mtime": 1793102516.9763837,
+    "seen": 1793102616.711342,
+    "ast_hash": "fa169337f46ad678f2408fd3c7182670",
+    "semantic_hash": ""
+  },
+  "job-portal-graph/README.md": {
+    "mtime": 1793102584.7276402,
+    "seen": 1793102616.711467,
+    "ast_hash": "e9516fb810b7618c43a5340b1985a0f3",
     "semantic_hash": ""
   },
   "job-portal-graph/package-lock.json": {

@@ -19,6 +19,7 @@ export const ERROR_STATUS = {
   MANDATORY_SKILLS_MISSING: 422,
   RATE_LIMITED: 429,
   DB_UNAVAILABLE: 503,
+  UNAVAILABLE: 503,
   QUERY_TIMEOUT: 504,
   INTERNAL: 500,
 };
@@ -57,6 +58,7 @@ export const Errors = {
     new AppError('MANDATORY_SKILLS_MISSING', msg, { details }),
   dbUnavailable: () =>
     new AppError('DB_UNAVAILABLE', 'Database is temporarily unavailable.'),
+  unavailable: (msg = 'Feature unavailable') => new AppError('UNAVAILABLE', msg),
   queryTimeout: () =>
     new AppError('QUERY_TIMEOUT', 'Query timed out.'),
   internal: () => new AppError('INTERNAL', 'An unexpected error occurred.'),

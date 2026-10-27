@@ -30,7 +30,7 @@ export function initInspector(container) {
       try {
         const res = await api.get(`/match/${encodeURIComponent(candId)}/${encodeURIComponent(jobId)}`);
         const match = res.match || res;
-        renderMatch(container, match, res.meta);
+        renderMatch(container, match, res.meta, res.decay);
 
         // Ensure inspector is visible on narrow screens.
         document.body.classList.add('inspector-open');
@@ -46,7 +46,9 @@ export function initInspector(container) {
   };
 }
 
-function renderMatch(container, match, meta = {}) {
+function renderMatch(container, match, meta = {}, decay = {}) {
+  // Ticket 56: decay is off at λ = 0 and always shown when it is on.
+  const decayOn = Number(decay.lambda) > 0;
   container.innerHTML = '';
   const jobId = match.job_id || match.jobId;
   const jobTitle = match.job_title || match.jobTitle || `Job #${jobId}`;
@@ -55,6 +57,16 @@ function renderMatch(container, match, meta = {}) {
     el('h3', { className: 'inspector-job-title' }, jobTitle),
     el('p', { className: 'muted' }, `Job ID: ${jobId}`),
   );
+  if (match.source_url) {
+    header.append(
+      el('p', { className: 'muted source-line' },
+        'Imported from ',
+        el('a', { href: match.source_url, target: '_blank', rel: 'noopener noreferrer' },
+          match.source ?? 'the source feed'),
+        ' · original posting',
+      ),
+    );
+  }
 
   const pctDisplay = match.match_pct !== null && match.match_pct !== undefined
     ? `${match.match_pct}%`
@@ -100,24 +112,48 @@ function renderMatch(container, match, meta = {}) {
     const mandBadge = b.mandatory ? ' ★' : '';
     const row = el('tr', {},
       el('td', {}, `${b.skill}${mandBadge}`),
-      el('td', {}, `${b.min_proficiency}/5 · ${b.min_years} yr`),
-      el('td', {}, b.held_proficiency ? `${b.held_proficiency}/5 · ${b.held_years} yr` : '—'),
+      el('td', {}, `${b.required_proficiency}/5 · ${b.required_years} yr`),
+      el('td', {}, heldCell(b, decayOn)),
       el('td', { className: `status-cell ${statusClass}` }, b.status),
     );
     tbody.append(row);
   }
   table.append(tbody);
 
-  // Query transparency drawer (plan §10.4 #7)
+  // Query transparency drawer (plan §10.4 #7, Ticket 42)
   const queryMeta = meta && Object.keys(meta).length > 0 ? meta : (match.meta || {});
   const metaDrawer = el('div', { className: 'query-drawer', id: 'inspector-query-meta' },
     el('h4', { className: 'drawer-title' }, 'Query Transparency'),
     el('p', {}, `Query: ${queryMeta.queryName || 'Q1_MATCH'}`),
-    el('p', {}, `Database time: ${queryMeta.dbTimeMs ?? 0} ms`),
+    el('pre', { className: 'query-cypher' }, queryMeta.cypher || ''),
+    el('p', {}, 'Parameters'),
+    el('pre', { className: 'query-params' }, JSON.stringify(queryMeta.params ?? {}, null, 2)),
     el('p', {}, `Rows: ${queryMeta.rowCount ?? 0}`),
+    el('p', { id: 'inspector-db-time', 'data-db-time': String(queryMeta.dbTimeMs ?? 0) },
+      `Database time: ${queryMeta.dbTimeMs ?? 0} ms`),
   );
 
-  container.append(header, metrics, el('h4', { className: 'section-subtitle' }, 'Skill Requirements Breakdown'), table, metaDrawer);
+  container.append(header, metrics);
+  if (decayOn) {
+    container.append(
+      el('p', { className: 'muted', id: 'inspector-decay' },
+        `Skill decay λ=${decay.lambda}: effective = proficiency × exp(−λ × years since last used)`),
+    );
+  }
+  container.append(
+    el('h4', { className: 'section-subtitle' }, 'Skill Requirements Breakdown'),
+    table,
+    metaDrawer,
+  );
+}
+
+function heldCell(row, decayOn) {
+  if (row.candidate_proficiency == null) return '—';
+  const years = `${row.candidate_years ?? 0} yr`;
+  if (decayOn && row.years_since_last_used != null) {
+    return `${row.effective_proficiency}/5 (decayed from ${row.candidate_proficiency}) · ${years}`;
+  }
+  return `${row.candidate_proficiency}/5 · ${years}`;
 }
 
 function renderRawNode(container, node) {

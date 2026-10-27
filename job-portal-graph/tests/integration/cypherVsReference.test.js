@@ -109,7 +109,7 @@ function q1FromCypher(record) {
 }
 
 async function q1For(candKey, jobId) {
-  const result = await run(Q1_MATCH, { candId: cands[candKey].profileId, jobId });
+  const result = await run(Q1_MATCH, { candId: cands[candKey].profileId, jobId, decayLambda: 0 });
   if (result.records.length === 0) return scoreMatch([], {}); // unscored job
   return q1FromCypher(result.records[0]);
 }
@@ -329,7 +329,7 @@ describe('Cypher vs reference matcher (Ticket 30)', () => {
   it('Q2 equals the reference gaps for every candidate × job pair, in Q2 order', async () => {
     for (const candKey of Object.keys(cands)) {
       for (const jobId of Object.keys(JOBS)) {
-        const result = await run(Q2_GAP, { candId: cands[candKey].profileId, jobId });
+        const result = await run(Q2_GAP, { candId: cands[candKey].profileId, jobId, decayLambda: 0 });
         const cypher = result.records.map((rec) => ({
           skill_key: rec.get('skill_key'),
           skill: rec.get('skill'),
@@ -347,7 +347,7 @@ describe('Cypher vs reference matcher (Ticket 30)', () => {
   });
 
   it('Q4 at threshold 0 equals the reference, excluding closed/expired/applied/zero-match', async () => {
-    const result = await run(Q4_RECOMMENDATIONS, { empId: employerId, threshold: 0, limit: 1000 });
+    const result = await run(Q4_RECOMMENDATIONS, { empId: employerId, threshold: 0, limit: 1000, decayLambda: 0 });
     const cypherRows = result.records.map((rec) => ({
       job_id: rec.get('job_id'),
       cand_id: rec.get('cand_id'),

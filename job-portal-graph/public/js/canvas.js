@@ -35,6 +35,7 @@ export function initCanvas(container, handlers = {}) {
 
   const nodes = new window.vis.DataSet([]);
   const edges = new window.vis.DataSet([]);
+  const hypotheticalIds = new Set();
 
   const options = {
     nodes: {
@@ -74,10 +75,87 @@ export function initCanvas(container, handlers = {}) {
     }
   });
 
+  // Ticket 41: hovering a node feeds the linked views (plan §10.5).
+  network.on('hoverNode', (params) => {
+    const node = nodes.get(params.node);
+    if (node && onHoverNode) onHoverNode({ id: node.id, type: node.nodeType });
+  });
+  network.on('blurNode', () => onHoverNode && onHoverNode(null));
+
+  /** Dims everything but `id` and its edges; `null` restores full opacity. */
+  function highlight(id) {
+    const key = id === null || id === undefined ? null : String(id);
+    nodes.update(
+      nodes.get().map((n) => ({
+        id: n.id,
+        opacity: key === null || n.id === key ? 1 : 0.25,
+      })),
+    );
+    edges.update(
+      edges.get().map((e) => {
+        const base = e.baseWidth ?? e.width ?? 1.5;
+        const near = key !== null && (e.from === key || e.to === key);
+        return {
+          id: e.id,
+          baseWidth: base,
+          width: near ? base + 1.5 : base,
+          opacity: key === null || near ? 1 : 0.15,
+        };
+      }),
+    );
+  }
+
   return {
     network,
     nodes,
     edges,
+    highlight,
+    /** Centres and selects one node (Ticket 41: canvas responds to bar/radar clicks). */
+    focus(id) {
+      const key = String(id);
+      if (!nodes.get(key)) return;
+      network.selectNodes([key]);
+      network.focus(key, { scale: 1.1, animation: false });
+    },
+    /** Ticket 43: outlines jobs a hypothetical skill set unlocks, adding those the
+     * stored ranking never drew. `clearHypothetical()` removes them again. */
+    showHypothetical(jobs) {
+      this.clearHypothetical();
+      for (const job of jobs ?? []) {
+        if (!job.newly_unlocked) continue;
+        const id = String(job.job_id);
+        hypotheticalIds.add(id);
+        if (nodes.get(id)) {
+          const existing = nodes.get(id);
+          nodes.update({
+            id,
+            baseBorderWidth: existing.baseBorderWidth ?? existing.borderWidth ?? 2,
+            borderWidth: 5,
+          });
+        } else {
+          nodes.add({
+            id,
+            label: `${job.job_title} — hypothetical`,
+            title: `Newly unlocked by the hypothetical skills (${job.hypothetical.match_pct}%)`,
+            shape: 'dot',
+            size: 18,
+            borderWidth: 5,
+            color: { background: '#86868b', border: '#0071e3' },
+            nodeType: 'Job',
+            hypothetical: true,
+          });
+        }
+      }
+    },
+    clearHypothetical() {
+      for (const id of hypotheticalIds) {
+        const node = nodes.get(id);
+        if (!node) continue;
+        if (node.hypothetical) nodes.remove(id);
+        else nodes.update({ id, borderWidth: node.baseBorderWidth ?? 2 });
+      }
+      hypotheticalIds.clear();
+    },
     render(subgraph) {
       nodes.clear();
       edges.clear();
@@ -126,6 +204,7 @@ export function initCanvas(container, handlers = {}) {
             to: String(e.to),
             color: { color, highlight: color },
             width: e.state === 'satisfied' ? 2.5 : 1.5,
+            baseWidth: e.state === 'satisfied' ? 2.5 : 1.5,
             dashes: e.state === 'missing',
             title: `${e.type || ''} (${e.state || 'neutral'})`,
           };

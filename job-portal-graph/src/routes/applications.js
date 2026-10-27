@@ -56,7 +56,7 @@ applicationsRouter.post(
       await tx.run(LOCK_JOB, { jobId });
 
       // Q1 inside the transaction: screening never trusts a stale score.
-      const q1 = await tx.run(Q1_MATCH, { candId, jobId });
+      const q1 = await tx.run(Q1_MATCH, { candId, jobId, decayLambda: config.SKILL_DECAY_LAMBDA });
       const scored = q1.records[0];
       const matchPct = scored ? toNumber(scored.get('match_pct')) : null;
       const mandatoryOk = scored ? scored.get('mandatory_ok') : true;

@@ -38,6 +38,8 @@ const CANDIDATE_NUMBER_FIELDS = [
   'required_years',
   'candidate_proficiency',
   'candidate_years',
+  'effective_proficiency',
+  'years_since_last_used',
 ];
 
 // Contact details and DOB never belong in a graph payload (§9.1 privacy).
@@ -48,6 +50,8 @@ function formatMatch(record) {
   return {
     job_id: record.get('job_id'),
     job_title: record.get('job_title'),
+    source: record.get('source'),
+    source_url: record.get('source_url'),
     total: toNumber(record.get('total')),
     matched: toNumber(record.get('matched')),
     match_pct: matchPct,
@@ -198,7 +202,10 @@ matchRouter.get(
 
       // 3. Job scored events (one per matched job).
       if (closed) { cleanup(); return; }
-      const jobResult = await neoSession.run(STREAM_SCORED_JOBS, { candId });
+      const jobResult = await neoSession.run(STREAM_SCORED_JOBS, {
+        candId,
+        decayLambda: config.SKILL_DECAY_LAMBDA,
+      });
       let strong = 0, moderate = 0, low = 0, unscored = 0;
 
       for (const r of jobResult.records) {
@@ -266,7 +273,7 @@ matchRouter.post(
 
     // Read-only: no transaction writes, nothing to roll back (plan §8.5).
     const hyp = buildHypotheticalMap(hypothetical);
-    const params = { candId, hyp };
+    const params = { candId, hyp, decayLambda: config.SKILL_DECAY_LAMBDA };
     const result = await executeRead((tx) => tx.run(WHAT_IF_RANKING, params));
     const rows = result.records.map((r) => ({
       job_id: r.get('job_id'),
@@ -314,7 +321,7 @@ matchRouter.get(
     const exists = await executeRead((tx) => tx.run(EXISTS_CANDIDATE, { candId }));
     if (exists.records.length === 0) throw Errors.notFound('Candidate not found.');
 
-    const params = { candId, limit, skip };
+    const params = { candId, limit, skip, decayLambda: config.SKILL_DECAY_LAMBDA };
     const [ranked, unscored] = await Promise.all([
       executeRead((tx) => tx.run(RANKED_JOBS, params)),
       executeRead((tx) => tx.run(UNSCORED_JOBS, params)),
@@ -322,23 +329,32 @@ matchRouter.get(
 
     const rankedJobs = ranked.records.map((r) => {
       const matchPct = toNumber(r.get('match_pct'));
+      const empId = r.get('emp_id');
       return {
         job_id: r.get('job_id'),
         job_title: r.get('job_title'),
-        employer: { emp_id: r.get('emp_id'), company_name: r.get('employer') },
+        employer: empId ? { emp_id: empId, company_name: r.get('employer') } : null,
+        source: r.get('source'),
+        source_url: r.get('source_url'),
         total: toNumber(r.get('total')),
         matched: toNumber(r.get('matched')),
         match_pct: matchPct,
         band: bandFor(matchPct),
         mandatory_ok: r.get('mandatory_ok'),
         matched_skills: r.get('matched_skills'),
+        matched_skill_keys: r.get('matched_skill_keys'),
       };
     });
-    const unscoredJobs = unscored.records.map((r) => ({
-      job_id: r.get('job_id'),
-      job_title: r.get('job_title'),
-      employer: { emp_id: r.get('emp_id'), company_name: r.get('employer') },
-    }));
+    const unscoredJobs = unscored.records.map((r) => {
+      const empId = r.get('emp_id');
+      return {
+        job_id: r.get('job_id'),
+        job_title: r.get('job_title'),
+        employer: empId ? { emp_id: empId, company_name: r.get('employer') } : null,
+        source: r.get('source'),
+        source_url: r.get('source_url'),
+      };
+    });
 
     res.json({
       candId,
@@ -389,23 +405,24 @@ matchRouter.get(
         label: job.properties.job_title,
         props: plain(job.properties),
       },
-      {
+    ];
+    const edges = [];
+    if (employer) {
+      nodes.push({
         id: employer.properties.emp_id,
         type: 'Employer',
         label: employer.properties.company_name,
         props: plain(employer.properties),
-      },
-    ];
-    const edges = [
-      {
+      });
+      edges.push({
         id: `posted:${employer.properties.emp_id}:${jobId}`,
         from: employer.properties.emp_id,
         to: jobId,
         type: 'POSTED',
         props: {},
         state: 'neutral',
-      },
-    ];
+      });
+    }
 
     for (const row of record.get('rows')) {
       if (!row.skill) continue;
@@ -414,6 +431,7 @@ matchRouter.get(
         ? {
             proficiency: toNumber(row.held.properties.proficiency),
             years: toNumber(row.held.properties.years),
+            last_used_year: toNumber(row.held.properties.last_used_year),
           }
         : null;
       const state = requirementStatus(row.req.properties, held);
@@ -462,7 +480,7 @@ matchRouter.get(
   asyncHandler(async (req, res) => {
     const { candId, jobId } = req.params;
     const jobTitle = await assertCandidateAndJob(candId, jobId);
-    const params = { candId, jobId };
+    const params = { candId, jobId, decayLambda: config.SKILL_DECAY_LAMBDA };
     const result = await executeRead((tx) => tx.run(Q1_MATCH, params));
 
     // Both ids exist: no rows means the job has no requirements → unscored.
@@ -482,6 +500,7 @@ matchRouter.get(
 
     res.json({
       match,
+      decay: { lambda: config.SKILL_DECAY_LAMBDA },
       meta: queryMeta({ queryName: 'Q1', cypher: Q1_MATCH, params, result }),
     });
   }),

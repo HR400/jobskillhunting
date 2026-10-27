@@ -25,6 +25,7 @@ const DEFERRED_CODES = [
   'DB_UNAVAILABLE', // ticket 09 unit test
   'QUERY_TIMEOUT', // ticket 07 unit test
   'INTERNAL', // ticket 07 unit test
+  'UNAVAILABLE', // ticket 47 ingest-off unit test (ingestCore.test.js)
 ];
 
 describe('Phase 1 sweep (Ticket 20)', () => {

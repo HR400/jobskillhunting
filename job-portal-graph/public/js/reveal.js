@@ -52,6 +52,7 @@ export function startReveal({ candId, canvas, verdictStrip, onComplete, onError 
 
   let jobCount = 0;
   let aborted = false;
+  let retried = false;
 
   function abort() {
     if (aborted) return;
@@ -275,6 +276,12 @@ export function startReveal({ candId, canvas, verdictStrip, onComplete, onError 
 
   es.addEventListener('error', (event) => {
     if (aborted) return;
+    // EventSource reconnects once on its own; only fall back after that fails (plan §14).
+    if (!retried) {
+      retried = true;
+      if (verdictStrip) verdictStrip.textContent = 'Match stream dropped — reconnecting once…';
+      return;
+    }
     es.close();
     if (verdictStrip) {
       verdictStrip.removeAttribute('aria-busy');

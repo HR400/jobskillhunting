@@ -7,6 +7,7 @@
  * bands and rank changes are computed in src/services/whatIf.js.
  * Pinned to Neo4j 5 syntax (no LET/FILTER/SEARCH).
  */
+import { effectiveProficiency } from './decay.js';
 
 export const WHAT_IF_RANKING = `
 MATCH (c:Candidate {cand_id: $candId})
@@ -23,7 +24,7 @@ WITH j, e, r, s, h, hyp,
           THEN coalesce(h.years, 0) ELSE coalesce(hyp.years, 0) END AS eff_y
 WITH j, e, r, s, h,
      (h IS NOT NULL
-      AND h.proficiency >= coalesce(r.min_proficiency, 1)
+      AND ${effectiveProficiency('h')} >= coalesce(r.min_proficiency, 1)
       AND coalesce(h.years, 0) >= coalesce(r.min_years, 0)) AS stored_ok,
      (eff_p >= coalesce(r.min_proficiency, 1)
       AND eff_y >= coalesce(r.min_years, 0)) AS eff_ok,

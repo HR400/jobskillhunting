@@ -19,6 +19,13 @@ import { gapRouter } from './routes/gap.js';
 import { referralsRouter } from './routes/referrals.js';
 import { recruiterRouter } from './routes/recruiter.js';
 import { applicationsRouter } from './routes/applications.js';
+import { ingestRouter } from './routes/ingest.js';
+import { semanticRouter } from './routes/semantic.js';
+import { analyticsRouter } from './routes/analytics.js';
+import { careerPathRouter } from './routes/careerPath.js';
+import { metaRouter } from './routes/meta.js';
+import { reportRouter } from './routes/report.js';
+import './ingest/index.js';
 
 export function createApp() {
   const app = express();
@@ -113,6 +120,12 @@ export function createApp() {
   app.use('/api/referrals', referralsRouter);
   app.use('/api/recruiter', recruiterRouter);
   app.use('/api/applications', applicationsRouter);
+  app.use('/api/ingest', ingestRouter);
+  app.use('/api/analytics', analyticsRouter);
+  app.use('/api/career-path', careerPathRouter);
+  app.use('/api/search', semanticRouter);
+  app.use('/api/meta', metaRouter);
+  app.use('/api/report', reportRouter);
 
   // Catch-all 404 for /api/* before the generic error handler.
   app.use('/api/*splat', notFoundHandler);

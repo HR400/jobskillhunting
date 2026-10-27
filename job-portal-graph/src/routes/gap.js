@@ -9,6 +9,7 @@ import { Router } from 'express';
 import { asyncHandler } from '../middleware/errors.js';
 import { executeRead } from '../db/tx.js';
 import { Errors } from '../lib/errors.js';
+import { config } from '../config.js';
 import { queryMeta, toNumber } from '../lib/queryMeta.js';
 import { Q2_GAP } from '../queries/q2Gap.js';
 import { EXISTS_CANDIDATE_JOB } from '../queries/exists.js';
@@ -34,7 +35,7 @@ gapRouter.get(
     if (!row?.get('cand_id')) throw Errors.notFound('Candidate not found.');
     if (!row?.get('job_id')) throw Errors.notFound('Job not found.');
 
-    const params = { candId, jobId };
+    const params = { candId, jobId, decayLambda: config.SKILL_DECAY_LAMBDA };
     const result = await executeRead((tx) => tx.run(Q2_GAP, params));
     const gaps = result.records.map((record) => {
       const gap = {

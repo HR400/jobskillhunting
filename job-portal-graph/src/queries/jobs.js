@@ -36,11 +36,13 @@ RETURN j, e.emp_id AS emp_id, e.company_name AS company_name
 `;
 
 export const LIST_JOBS = `
-MATCH (e:Employer)-[:POSTED]->(j:Job)
+MATCH (j:Job)
 WHERE ($status IS NULL OR j.job_status = $status)
   AND ($q IS NULL OR toLower(j.job_title) CONTAINS $q)
-  AND ($employerId IS NULL OR e.emp_id = $employerId)
   AND ($skillKey IS NULL OR EXISTS { MATCH (j)-[:REQUIRES_SKILL]->(:Skill {skill_key: $skillKey}) })
+OPTIONAL MATCH (e:Employer)-[:POSTED]->(j)
+WITH j, e
+WHERE ($employerId IS NULL OR e.emp_id = $employerId)
 RETURN j, e.emp_id AS emp_id, e.company_name AS company_name,
        COUNT { (j)-[:REQUIRES_SKILL]->(:Skill) } AS requirement_count
 ORDER BY j.posted_date DESC, j.job_id ASC
@@ -48,7 +50,8 @@ SKIP toInteger($skip) LIMIT toInteger($limit)
 `;
 
 export const GET_JOB_BY_ID = `
-MATCH (e:Employer)-[:POSTED]->(j:Job {job_id: $jobId})
+MATCH (j:Job {job_id: $jobId})
+OPTIONAL MATCH (e:Employer)-[:POSTED]->(j)
 OPTIONAL MATCH (j)-[r:REQUIRES_SKILL]->(s:Skill)
 WITH j, e, collect(
   CASE WHEN s IS NULL THEN null ELSE {

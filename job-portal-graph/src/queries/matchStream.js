@@ -4,6 +4,7 @@
  * Plan §9.3: candidate node, then skills, then job_scored per job.
  * Pinned to Neo4j 5 syntax. No Cypher 25-only clauses.
  */
+import { effectiveProficiency } from './decay.js';
 
 /** Fetch the candidate node fields needed for the seed event. */
 export const STREAM_CANDIDATE = `
@@ -40,7 +41,7 @@ WITH c, j, e, count(r) AS total,
                min_proficiency: r.min_proficiency, min_years: r.min_years,
                mandatory: coalesce(r.mandatory, false) }) AS reqs
 OPTIONAL MATCH (j)-[r2:REQUIRES_SKILL]->(s2:Skill)<-[h:HAS_SKILL]-(c)
-WHERE h.proficiency >= coalesce(r2.min_proficiency, 1)
+WHERE ${effectiveProficiency('h')} >= coalesce(r2.min_proficiency, 1)
   AND coalesce(h.years, 0) >= coalesce(r2.min_years, 0)
 WITH c, j, e, total, mand_total, reqs, count(r2) AS matched,
      sum(CASE WHEN coalesce(r2.mandatory, false) THEN 1 ELSE 0 END) AS mand_matched,

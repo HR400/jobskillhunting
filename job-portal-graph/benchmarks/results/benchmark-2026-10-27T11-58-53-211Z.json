@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-10-27T11:58:53.209Z",
+  "iterations": 20,
+  "neo4j_version": "5.20.0",
+  "edition": "community",
+  "db_info": {
+    "name": "Neo4j Kernel",
+    "version": "5.20.0",
+    "edition": "community"
+  },
+  "db_size": {
+    "nodes": 16,
+    "relationships": 1
+  },
+  "benchmarks": {
+    "Q1_MATCH": {
+      "min": 44.58,
+      "p50": 59.1,
+      "p95": 76.68,
+      "max": 209.1,
+      "mean": 65.88
+    },
+    "Q2_GAP": {
+      "min": 36.94,
+      "p50": 45.87,
+      "p95": 58.99,
+      "max": 118.99,
+      "mean": 49.26
+    },
+    "Q3_REFERRALS": {
+      "min": 31.78,
+      "p50": 47.09,
+      "p95": 69.52,
+      "max": 110.82,
+      "mean": 50.45
+    },
+    "Q4_RECRUITER": {
+      "min": 37.13,
+      "p50": 45.02,
+      "p95": 69.48,
+      "max": 226.92,
+      "mean": 54.69
+    }
+  },
+  "relational": {
+    "configured": false,
+    "reason": "RELATIONAL_URL not configured"
+  }
+}

@@ -56,9 +56,8 @@ export function initBars(container) {
 
   // Sync selection highlight from store
   subscribe((state) => {
-    if (state.selection?.type === 'Job') {
-      highlightBar(state.selection.id);
-    }
+    highlightBar(state.selection?.type === 'Job' ? state.selection.id : null);
+    markSkill(state.hover?.type === 'Skill' ? state.hover.id : null);
   });
 
   function highlightBar(jobId) {
@@ -66,7 +65,27 @@ export function initBars(container) {
     if (!svgEl) return;
     // D3 not available in this scope; use DOM directly
     svgEl.querySelectorAll('[data-job-id]').forEach((el) => {
-      el.classList.toggle('bar-selected', el.dataset.jobId === jobId);
+      el.classList.toggle('bar-selected', jobId !== null && el.dataset.jobId === jobId);
+    });
+  }
+
+  /** Ticket 41: hovering a skill marks every bar whose job requires it. */
+  function markSkill(skillKey) {
+    const ids = new Set(
+      skillKey === null
+        ? []
+        : currentRanked
+            .filter((d) => (d.matched_skill_keys || []).includes(skillKey))
+            .map((d) => String(d.job_id)),
+    );
+    const svgEl = svgWrap.querySelector('svg');
+    if (svgEl) {
+      svgEl.querySelectorAll('[data-job-id]').forEach((el) => {
+        el.classList.toggle('bar-skill-match', ids.has(el.dataset.jobId));
+      });
+    }
+    tableWrap.querySelectorAll('[data-job-id]').forEach((el) => {
+      el.classList.toggle('bar-skill-match', ids.has(el.dataset.jobId));
     });
   }
 
@@ -167,6 +186,7 @@ export function initBars(container) {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
           setState({ selection: { type: 'Job', id: d.job_id } });
+          window.dispatchEvent(new CustomEvent('bars-select', { detail: { jobId: d.job_id } }));
         }
       });
 
@@ -192,6 +212,7 @@ export function initBars(container) {
         <th scope="col">Match</th>
         <th scope="col">Band</th>
         <th scope="col">Mandatory</th>
+        <th scope="col">Source</th>
       </tr>`;
     table.append(thead);
 
@@ -200,12 +221,16 @@ export function initBars(container) {
       const tr = document.createElement('tr');
       tr.dataset.jobId = d.job_id;
       tr.setAttribute('tabindex', '0');
+      const source = d.source_url
+        ? `<a href="${escHtml(d.source_url)}" target="_blank" rel="noopener noreferrer">${escHtml(d.source ?? 'Source')}</a>`
+        : '';
       tr.innerHTML = `
         <td>${escHtml(d.job_title)}</td>
         <td>${escHtml(d.employer?.company_name ?? '')}</td>
         <td>${d.match_pct !== null ? `${d.match_pct}%` : 'Unscored'}</td>
         <td>${escHtml(d.band ?? 'Unscored')}</td>
-        <td>${d.mandatory_ok ? 'Yes' : 'No'}</td>`;
+        <td>${d.mandatory_ok ? 'Yes' : 'No'}</td>
+        <td>${source}</td>`;
       tr.addEventListener('click', () => {
         setState({ selection: { type: 'Job', id: d.job_id } });
         window.dispatchEvent(new CustomEvent('bars-select', { detail: { jobId: d.job_id } }));

@@ -42,6 +42,18 @@
     <section class="center" aria-label="Match workspace">
       <p id="view-note" class="muted" hidden></p>
 
+      <!-- Ticket 43: What-if simulator panel (hidden unless the tab is active). -->
+      <section id="mode-whatif" class="mode-panel" aria-label="What-if simulator" hidden>
+        <h2 class="panel-title">What-if</h2>
+        <div id="whatif-slot"></div>
+      </section>
+
+      <!-- Ticket 45: recruiter view panel. -->
+      <section id="mode-recruiter" class="mode-panel" aria-label="Recruiter view" hidden></section>
+
+      <!-- Ticket 49: honest empty state when the database has no jobs. -->
+      <div id="empty-state" class="empty-state" hidden></div>
+
       <div class="canvas-slot" id="match-canvas" aria-label="Match canvas">
         <p class="muted">Loading match graph…</p>
       </div>
@@ -56,14 +68,9 @@
         <div class="chart" id="skill-radar">
           <h3>Skill radar</h3>
         </div>
-        <div class="chart" id="gap-list">
-          <h3>Gap list</h3>
-          <p class="muted">Gap list arrives with the gap view ticket.</p>
-        </div>
-        <div class="chart" id="referral-chain">
-          <h3>Referrals</h3>
-          <p class="muted">Referral chain arrives with the network view ticket.</p>
-        </div>
+        <div class="chart" id="gap-list"></div>
+        <div class="chart" id="referral-chain"></div>
+        <div class="chart" id="unscored-jobs" hidden></div>
       </div>
     </section>
 

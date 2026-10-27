@@ -9,7 +9,10 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "bench": "node benchmarks/run.js",
+    "audit:nofake": "node scripts/audit-nofake.js",
+    "lint": "eslint ."
   },
   "dependencies": {
     "argon2": "^0.45.1",
