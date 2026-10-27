@@ -90,19 +90,23 @@ function renderStep1() {
     ]),
   );
 
-  // Candidate sub-type (only visible when role = candidate).
-  const typeField = selectField('Type', 'candidate_type', [
-    ['fresher', 'Fresher'],
-    ['experienced', 'Experienced'],
-    ['freelancer', 'Freelancer'],
-  ]);
-  typeField.id = 'candidate-type-wrap';
-  typeField.hidden = true;
-  form.append(typeField);
+  // Candidate fields (visible when role = candidate).
+  const candFields = el('div', { id: 'candidate-fields' });
+  candFields.hidden = true;
+  candFields.append(
+    selectField('Type', 'candidate_type', [
+      ['fresher', 'Fresher'],
+      ['experienced', 'Experienced'],
+      ['freelancer', 'Freelancer'],
+    ]),
+    field('First Name', 'fname'),
+    field('Last Name', 'lname'),
+  );
+  form.append(candFields);
 
   const roleSelect = form.querySelector('[name="role"]');
   roleSelect.addEventListener('change', () => {
-    typeField.hidden = roleSelect.value !== 'candidate';
+    candFields.hidden = roleSelect.value !== 'candidate';
   });
 
   // Employer-specific fields.
@@ -142,7 +146,11 @@ function renderStep1() {
         email: data.email,
         password: data.password,
         role,
-        profile: { candidate_type: candidateType, fname: 'TBD', lname: 'TBD' },
+        profile: {
+          candidate_type: candidateType,
+          fname: data.fname,
+          lname: data.lname,
+        },
       };
     } else {
       body = {
@@ -164,6 +172,9 @@ function renderStep1() {
       session = { ...result, email: data.email };
 
       if (role === 'candidate') {
+        collected.candidate_type = data.candidate_type;
+        collected.fname = data.fname;
+        collected.lname = data.lname;
         step = 2;
         render();
       } else {
@@ -195,8 +206,8 @@ function renderStep2() {
   const form = el('form', { className: 'wizard-form', id: 'wizard-step2' });
   form.append(
     el('h3', { className: 'wizard-step-title' }, 'Step 2 — Basic Information'),
-    field('First Name', 'fname'),
-    field('Last Name', 'lname'),
+    field('First Name', 'fname', 'text', { value: collected.fname || '' }),
+    field('Last Name', 'lname', 'text', { value: collected.lname || '' }),
     field('Date of Birth', 'dob', 'date'),
     selectField('Gender', 'gender', [
       ['male', 'Male'],
@@ -209,9 +220,23 @@ function renderStep2() {
     field('Street', 'street'),
   );
 
-  // Extra fields based on candidate_type stored in the session — but we
-  // asked for candidate_type in step 1, so it's in the registration body.
-  // We read it from the profile via /candidates/me.
+  // Extra fields based on candidate_type.
+  const candType = collected.candidate_type;
+  if (candType === 'freelancer') {
+    form.append(
+      field('Hourly Rate ($)', 'hourly_rate', 'number', { min: '0', max: '100000', step: 'any' }),
+      field('Portfolio URL', 'portfolio_url', 'url', { placeholder: 'https://...' }),
+    );
+  } else if (candType === 'fresher') {
+    form.append(
+      field('Graduation Year', 'grad_year', 'number', { min: '1950', max: '2100' }),
+    );
+  } else if (candType === 'experienced') {
+    form.append(
+      field('Total Experience (years)', 'total_exp', 'number', { min: '0', max: '60', step: '0.5' }),
+      field('Current Company', 'current_company', 'text', { maxlength: '100' }),
+    );
+  }
 
   form.append(el('button', { type: 'submit', className: 'wizard-btn' }, 'Save and Continue'));
 
@@ -223,20 +248,21 @@ function renderStep2() {
     const updates = {};
     if (data.fname) updates.fname = data.fname;
     if (data.lname) updates.lname = data.lname;
+    if (data.dob) updates.dob = data.dob;
+    if (data.gender) updates.gender = data.gender;
     if (data.phone) updates.phone = data.phone;
     if (data.house_no) updates.house_no = data.house_no;
     if (data.street) updates.street = data.street;
-    if (data.gender) updates.gender = data.gender;
     // Type-specific extras.
-    if (data.hourly_rate) updates.hourly_rate = Number(data.hourly_rate);
+    if (data.hourly_rate !== '' && data.hourly_rate !== undefined) updates.hourly_rate = Number(data.hourly_rate);
     if (data.portfolio_url) updates.portfolio_url = data.portfolio_url;
-    if (data.grad_year) updates.grad_year = Number(data.grad_year);
-    if (data.total_exp) updates.total_exp = Number(data.total_exp);
+    if (data.grad_year !== '' && data.grad_year !== undefined) updates.grad_year = Number(data.grad_year);
+    if (data.total_exp !== '' && data.total_exp !== undefined) updates.total_exp = Number(data.total_exp);
     if (data.current_company) updates.current_company = data.current_company;
 
     try {
       await api.put('/candidates/me', updates);
-      collected.basics = updates;
+      collected.basics = { ...collected.basics, ...updates };
       step = 3;
       render();
     } catch (err) {
@@ -253,19 +279,391 @@ function renderStep2() {
   return form;
 }
 
-// ── Step 3 placeholder (Ticket 34) ──────────────────────────────────────────
+// ── Step 3: Skills (Ticket 34) ──────────────────────────────────────────────
+const PROFICIENCY_LABELS = ['', 'Beginner', 'Basic', 'Intermediate', 'Advanced', 'Expert'];
+
 function renderStep3() {
-  return el('p', { className: 'muted' }, 'Skills step — built in Ticket 34.');
+  if (!collected.skills) collected.skills = [];
+
+  const wrap = el('div', { className: 'wizard-form', id: 'wizard-step3' });
+  wrap.append(el('h3', { className: 'wizard-step-title' }, 'Step 3 — Skills'));
+
+  // ── Skill list ─────────────────────────────────────────────────────────────
+  const listEl = el('div', { className: 'skill-list', id: 'skill-entries' });
+
+  function renderSkillList() {
+    listEl.innerHTML = '';
+    for (let i = 0; i < collected.skills.length; i++) {
+      const s = collected.skills[i];
+      const row = el('div', { className: 'skill-row' },
+        el('span', { className: 'skill-name' }, s.name),
+        el('span', { className: 'skill-prof' },
+          `${PROFICIENCY_LABELS[s.proficiency]} (${s.proficiency}/5)`),
+        el('span', { className: 'skill-years' }, `${s.years} yr`),
+        el('button', {
+          type: 'button',
+          className: 'skill-remove',
+          onClick: () => { collected.skills.splice(i, 1); renderSkillList(); },
+        }, '×'),
+      );
+      listEl.append(row);
+    }
+  }
+
+  renderSkillList();
+  wrap.append(listEl);
+
+  // ── Typeahead input ────────────────────────────────────────────────────────
+  const searchWrap = el('div', { className: 'typeahead-wrap' });
+  const searchInput = el('input', {
+    type: 'text',
+    name: 'skill_search',
+    id: 'wiz-skill-search',
+    placeholder: 'Search skills…',
+    autocomplete: 'off',
+  });
+  const dropdown = el('ul', { className: 'typeahead-dropdown', id: 'skill-suggestions' });
+  dropdown.hidden = true;
+  searchWrap.append(searchInput, dropdown);
+  wrap.append(searchWrap);
+
+  let debounceTimer = null;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    const q = searchInput.value.trim();
+    if (q.length < 1) { dropdown.hidden = true; return; }
+    debounceTimer = setTimeout(async () => {
+      try {
+        const data = await api.get(`/skills?q=${encodeURIComponent(q)}`);
+        const skills = data.skills || [];
+        dropdown.innerHTML = '';
+        for (const s of skills) {
+          const li = el('li', {
+            className: 'typeahead-option',
+            onClick: () => { pickSkill(s.name, s.skill_key); dropdown.hidden = true; searchInput.value = ''; },
+          }, s.name);
+          dropdown.append(li);
+        }
+        // "Add new" option if the typed value is not in the list.
+        const lowerQ = q.toLowerCase().replace(/\s+/g, ' ').trim();
+        const exists = skills.some((s) => s.skill_key === lowerQ);
+        if (!exists) {
+          const addLi = el('li', {
+            className: 'typeahead-option typeahead-add',
+            onClick: () => confirmAdd(q),
+          }, `Add "${q}" as a new skill…`);
+          dropdown.append(addLi);
+        }
+        dropdown.hidden = dropdown.children.length === 0;
+      } catch {
+        dropdown.hidden = true;
+      }
+    }, 250);
+  });
+
+  // Hide dropdown when clicking outside.
+  document.addEventListener('click', (e) => {
+    if (!searchWrap.contains(e.target)) dropdown.hidden = true;
+  });
+
+  // ── Confirm-to-add for unknown skills ──────────────────────────────────────
+  function confirmAdd(name) {
+    dropdown.hidden = true;
+    searchInput.value = '';
+    const confirmed = window.confirm(
+      `"${name}" is not in the catalogue. Add it as a new skill?`,
+    );
+    if (confirmed) pickSkill(name, null);
+  }
+
+  // ── Pick a skill → show proficiency/years form ─────────────────────────────
+  const addFormWrap = el('div', { id: 'skill-add-form' });
+  addFormWrap.hidden = true;
+  wrap.append(addFormWrap);
+
+  let pendingSkill = null;
+
+  function pickSkill(name, skillKey) {
+    pendingSkill = { name, skill_key: skillKey };
+    addFormWrap.hidden = false;
+    addFormWrap.innerHTML = '';
+
+    const profLabel = el('span', { id: 'prof-label', className: 'wizard-label' },
+      PROFICIENCY_LABELS[3]);
+    addFormWrap.append(
+      el('p', {}, `Adding: ${name}`),
+      el('div', { className: 'wizard-field' },
+        el('label', { className: 'wizard-label' }, 'Proficiency (1–5)'),
+        (() => {
+          const inp = el('input', {
+            type: 'range', name: 'proficiency', min: '1', max: '5', value: '3',
+            id: 'wiz-prof-range',
+          });
+          inp.addEventListener('input', () => { profLabel.textContent = PROFICIENCY_LABELS[inp.value]; });
+          return inp;
+        })(),
+        profLabel,
+      ),
+      field('Years of experience', 'years', 'number', { min: '0', max: '60', step: '0.5' }),
+      field('Last used year (optional)', 'last_used_year', 'number', {
+        min: '1950', max: '2100', step: '1',
+      }),
+      el('button', {
+        type: 'button',
+        className: 'wizard-btn',
+        onClick: () => {
+          const prof = Number(addFormWrap.querySelector('[name="proficiency"]').value);
+          const years = Number(addFormWrap.querySelector('[name="years"]').value) || 0;
+          const luy = addFormWrap.querySelector('[name="last_used_year"]').value;
+          collected.skills.push({
+            name: pendingSkill.name,
+            skill_key: pendingSkill.skill_key,
+            proficiency: prof,
+            years,
+            last_used_year: luy ? Number(luy) : null,
+          });
+          addFormWrap.hidden = true;
+          addFormWrap.innerHTML = '';
+          renderSkillList();
+        },
+      }, 'Confirm Skill'),
+    );
+  }
+
+  // ── Save and continue ──────────────────────────────────────────────────────
+  const saveBtn = el('button', {
+    type: 'button',
+    className: 'wizard-btn',
+    onClick: async () => {
+      if (collected.skills.length === 0) {
+        // Allow continuing with zero skills (R3: no-skills empty state).
+        step = 4;
+        render();
+        return;
+      }
+      try {
+        await api.put('/candidates/me/skills', { skills: collected.skills });
+        step = 4;
+        render();
+      } catch (err) {
+        if (err instanceof ApiError) {
+          let banner = wrap.querySelector('.form-error');
+          if (!banner) { banner = el('p', { className: 'form-error' }); wrap.prepend(banner); }
+          banner.textContent = err.message;
+        }
+      }
+    },
+  }, 'Save Skills and Continue');
+  wrap.append(saveBtn);
+
+  return wrap;
 }
 
-// ── Step 4 placeholder (Ticket 35) ──────────────────────────────────────────
+// ── Step 4: Education & Location (Ticket 35) ─────────────────────────────────
 function renderStep4() {
-  return el('p', { className: 'muted' }, 'Education step — built in Ticket 35.');
+  if (!collected.education) collected.education = [];
+
+  const wrap = el('div', { className: 'wizard-form', id: 'wizard-step4' });
+  wrap.append(el('h3', { className: 'wizard-step-title' }, 'Step 4 — Education'));
+
+  const listEl = el('div', { className: 'education-list', id: 'edu-entries' });
+
+  function renderEduList() {
+    listEl.innerHTML = '';
+    for (let i = 0; i < collected.education.length; i++) {
+      const e = collected.education[i];
+      const row = el('div', { className: 'edu-row' },
+        el('span', { className: 'edu-degree' }, `${e.degree} — ${e.university}`),
+        el('span', { className: 'edu-years' }, `${e.start_year}${e.end_year ? '–' + e.end_year : ''}`),
+        el('button', {
+          type: 'button',
+          className: 'skill-remove',
+          onClick: async () => {
+            if (e.edu_id) {
+              try { await api.delete(`/candidates/me/education/${e.edu_id}`); } catch { /* ignore */ }
+            }
+            collected.education.splice(i, 1);
+            renderEduList();
+          },
+        }, '×'),
+      );
+      listEl.append(row);
+    }
+  }
+
+  renderEduList();
+  wrap.append(listEl);
+
+  const addForm = el('div', { id: 'edu-add-form' },
+    field('Degree', 'degree', 'text', { placeholder: 'e.g. B.S. in Computer Science' }),
+    field('University', 'university', 'text', { placeholder: 'e.g. Stanford University' }),
+    field('Start Year', 'start_year', 'number', { min: '1950', max: '2100' }),
+    field('End Year (optional)', 'end_year', 'number', { min: '1950', max: '2100' }),
+    field('CGPA (optional)', 'cgpa', 'number', { min: '0', max: '10', step: '0.01' }),
+    field('Specialization (optional)', 'specialization', 'text'),
+    el('button', {
+      type: 'button',
+      className: 'wizard-btn',
+      onClick: async () => {
+        clearErrors(wrap);
+        const degree = wrap.querySelector('[name="degree"]').value.trim();
+        const university = wrap.querySelector('[name="university"]').value.trim();
+        const startYearVal = wrap.querySelector('[name="start_year"]').value;
+        const endYearVal = wrap.querySelector('[name="end_year"]').value;
+        const cgpaVal = wrap.querySelector('[name="cgpa"]').value;
+        const specialization = wrap.querySelector('[name="specialization"]').value.trim();
+
+        if (!degree || !university || !startYearVal) {
+          showFormError(wrap, 'Degree, university, and start year are required.');
+          return;
+        }
+
+        const entry = {
+          degree,
+          university,
+          start_year: Number(startYearVal),
+          end_year: endYearVal ? Number(endYearVal) : null,
+          cgpa: cgpaVal ? Number(cgpaVal) : null,
+          specialization: specialization || null,
+        };
+
+        try {
+          const res = await api.post('/candidates/me/education', entry);
+          collected.education.push({ ...entry, edu_id: res.education?.edu_id || res.edu_id });
+          wrap.querySelector('[name="degree"]').value = '';
+          wrap.querySelector('[name="university"]').value = '';
+          wrap.querySelector('[name="start_year"]').value = '';
+          wrap.querySelector('[name="end_year"]').value = '';
+          wrap.querySelector('[name="cgpa"]').value = '';
+          wrap.querySelector('[name="specialization"]').value = '';
+          renderEduList();
+        } catch (err) {
+          if (err instanceof ApiError && err.details?.length) {
+            showFieldErrors(wrap, err.details);
+          } else if (err instanceof ApiError) {
+            showFormError(wrap, err.message);
+          } else {
+            showFormError(wrap, 'Failed to save education.');
+          }
+        }
+      },
+    }, 'Add Education'),
+  );
+
+  wrap.append(addForm);
+
+  const nextBtn = el('button', {
+    type: 'button',
+    className: 'wizard-btn',
+    onClick: () => {
+      step = 5;
+      render();
+    },
+  }, 'Continue to Review');
+  wrap.append(nextBtn);
+
+  return wrap;
 }
 
-// ── Step 5 placeholder (Ticket 35) ──────────────────────────────────────────
+// ── Step 5: Review & Submit (Ticket 35) ──────────────────────────────────────
 function renderStep5() {
-  return el('p', { className: 'muted' }, 'Review step — built in Ticket 35.');
+  const wrap = el('div', { className: 'wizard-form', id: 'wizard-step5' });
+  wrap.append(el('h3', { className: 'wizard-step-title' }, 'Step 5 — Review & Submit'));
+
+  const reviewCard = el('div', { className: 'review-card', id: 'wizard-review-summary' });
+
+  // Account
+  const accSection = el('div', { className: 'review-section' },
+    el('h4', { className: 'review-title' }, 'Account'),
+    el('p', {}, `Email: ${session?.email || '—'}`),
+    el('p', {}, `Role: ${session?.role || 'candidate'}`),
+    collected.candidate_type ? el('p', {}, `Candidate Type: ${collected.candidate_type}`) : null,
+  );
+  reviewCard.append(accSection);
+
+  // Basics — only entered values
+  const basics = collected.basics || {};
+  const basicItems = [];
+  const fullName = [basics.fname, basics.lname].filter(Boolean).join(' ');
+  if (fullName) basicItems.push(el('p', {}, `Name: ${fullName}`));
+  if (basics.dob) basicItems.push(el('p', {}, `Date of Birth: ${basics.dob}`));
+  if (basics.gender) basicItems.push(el('p', {}, `Gender: ${basics.gender}`));
+  if (basics.phone) basicItems.push(el('p', {}, `Phone: ${basics.phone}`));
+  const address = [basics.house_no, basics.street].filter(Boolean).join(', ');
+  if (address) basicItems.push(el('p', {}, `Address: ${address}`));
+
+  // Candidate type extras
+  if (basics.hourly_rate !== undefined && basics.hourly_rate !== null) {
+    basicItems.push(el('p', {}, `Hourly Rate: $${basics.hourly_rate}`));
+  }
+  if (basics.portfolio_url) {
+    basicItems.push(el('p', {}, `Portfolio: ${basics.portfolio_url}`));
+  }
+  if (basics.grad_year) {
+    basicItems.push(el('p', {}, `Graduation Year: ${basics.grad_year}`));
+  }
+  if (basics.total_exp !== undefined && basics.total_exp !== null) {
+    basicItems.push(el('p', {}, `Total Experience: ${basics.total_exp} yr`));
+  }
+  if (basics.current_company) {
+    basicItems.push(el('p', {}, `Current Company: ${basics.current_company}`));
+  }
+
+  if (basicItems.length > 0) {
+    reviewCard.append(el('div', { className: 'review-section' },
+      el('h4', { className: 'review-title' }, 'Basic Information'),
+      ...basicItems,
+    ));
+  }
+
+  // Skills
+  const skills = collected.skills || [];
+  const skillElements = skills.length > 0
+    ? skills.map((s) =>
+        el('p', { className: 'review-entry' },
+          `${s.name}: ${PROFICIENCY_LABELS[s.proficiency]} (${s.proficiency}/5) · ${s.years} yr${s.last_used_year ? ' · Last used ' + s.last_used_year : ''}`))
+    : [el('p', { className: 'muted' }, 'No skills entered')];
+
+  reviewCard.append(el('div', { className: 'review-section' },
+    el('h4', { className: 'review-title' }, 'Skills'),
+    ...skillElements,
+  ));
+
+  // Education
+  const educations = collected.education || [];
+  const eduElements = educations.length > 0
+    ? educations.map((e) =>
+        el('p', { className: 'review-entry' },
+          `${e.degree} — ${e.university} (${e.start_year}${e.end_year ? '–' + e.end_year : ''})${e.cgpa ? ' · CGPA: ' + e.cgpa : ''}`))
+    : [el('p', { className: 'muted' }, 'No education entered')];
+
+  reviewCard.append(el('div', { className: 'review-section' },
+    el('h4', { className: 'review-title' }, 'Education'),
+    ...eduElements,
+  ));
+
+  wrap.append(reviewCard);
+
+  // Submit button
+  const submitBtn = el('button', {
+    type: 'button',
+    className: 'wizard-btn',
+    onClick: () => {
+      slot.innerHTML = '';
+      slot.append(
+        el('div', { className: 'wizard-success-card' },
+          el('h3', { className: 'wizard-step-title' }, 'Profile Complete'),
+          el('p', { className: 'wizard-success' },
+            'Your profile is active and ready for matching.'),
+        ),
+      );
+      window.dispatchEvent(new CustomEvent('session-change', { detail: session }));
+      window.dispatchEvent(new CustomEvent('profile-ready', { detail: session }));
+    },
+  }, 'Complete Profile');
+  wrap.append(submitBtn);
+
+  return wrap;
 }
 
 // ── Render ───────────────────────────────────────────────────────────────────

@@ -240,6 +240,197 @@ body:not([data-mode='match']) .charts { display: none; }
   color: var(--color-page-text);
 }
 
+.edu-row,
+.skill-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-surface-pearl);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-body-size);
+  gap: var(--space-sm);
+}
+
+.review-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.review-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  padding: var(--space-sm);
+  background: var(--color-surface-pearl);
+  border-radius: var(--radius-sm);
+}
+
+.review-title {
+  margin: 0;
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-headline-weight);
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.review-entry {
+  margin: 0;
+  font-size: var(--text-body-size);
+}
+
+/* ── Inspector styling (Ticket 36) ───────────────────────────────────────── */
+.inspector-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-surface-pearl);
+  border-radius: var(--radius-sm);
+}
+
+.metric-label {
+  font-size: var(--text-fine-size);
+  color: var(--color-ink-muted-48);
+}
+
+.metric-value {
+  font-size: var(--text-callout-size);
+  font-weight: var(--text-headline-weight);
+  color: var(--color-page-text);
+}
+
+.inspector-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-caption-size);
+  margin-bottom: var(--space-md);
+}
+
+.inspector-table th,
+.inspector-table td {
+  padding: var(--space-2xs) var(--space-xs);
+  text-align: left;
+  border-bottom: 1px solid var(--color-surface-pearl);
+}
+
+.status-satisfied { color: #34c759; font-weight: var(--text-headline-weight); }
+.status-below { color: #ff9500; font-weight: var(--text-headline-weight); }
+.status-missing { color: #ff3b30; font-weight: var(--text-headline-weight); }
+
+.query-drawer {
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-surface-pearl);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-fine-size);
+  color: var(--color-ink-muted-48);
+}
+
+/* ── D3 Charts (Ticket 37) ───────────────────────────────────────────────── */
+.chart-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-2xs);
+}
+
+.chart-toggle-btn {
+  appearance: none;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-primary);
+  font-family: var(--font-text);
+  font-size: var(--text-fine-size);
+  padding: 2px var(--space-xs);
+  cursor: pointer;
+}
+
+.chart-toggle-btn:hover { opacity: 0.8; }
+
+.chart-svg-wrap svg { display: block; max-width: 100%; }
+
+.bar-label {
+  font-family: var(--font-text);
+  font-size: 10px;
+  fill: var(--color-page-text);
+}
+
+.bar-value-label {
+  font-family: var(--font-text);
+  font-size: 10px;
+  fill: var(--color-ink-muted-48);
+}
+
+.bar-rect { cursor: pointer; transition: opacity 0.15s; }
+.bar-rect:hover, .bar-rect:focus { opacity: 0.8; outline: none; }
+.bar-rect.bar-selected { stroke: var(--color-page-text); stroke-width: 2; }
+
+.chart-axis text { font-size: 9px; fill: var(--color-ink-muted-48); }
+.chart-axis line, .chart-axis path { stroke: var(--color-ink-muted-48); }
+
+.radar-label {
+  fill: var(--color-page-text);
+  font-family: var(--font-text);
+  cursor: pointer;
+}
+.radar-label:hover, .radar-axis-hovered { fill: var(--color-primary); }
+
+.chart-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-fine-size);
+}
+
+.chart-table th,
+.chart-table td {
+  padding: var(--space-2xs) var(--space-xs);
+  text-align: left;
+  border-bottom: 1px solid var(--color-surface-pearl);
+}
+
+.chart-table tbody tr { cursor: pointer; }
+.chart-table tbody tr:hover { background: var(--color-surface-pearl); }
+
+.chart-empty { text-align: center; padding: var(--space-lg); }
+
+/* ── Reveal strip (Ticket 40) ────────────────────────────────────────────── */
+.reveal-strip {
+  padding: var(--space-xs) var(--space-md);
+  background: var(--color-surface-pearl);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-caption-size);
+  color: var(--color-page-text);
+  min-height: 2rem;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-xs);
+}
+
+.reveal-strip:empty { display: none; }
+
+.verdict-badge {
+  display: inline-block;
+  padding: 2px var(--space-xs);
+  border-radius: var(--radius-pill);
+  font-weight: var(--text-headline-weight);
+  font-size: var(--text-fine-size);
+}
+
+.verdict-badge.strong { background: rgba(52, 199, 89, 0.15); color: #34c759; }
+.verdict-badge.moderate { background: rgba(255, 149, 0, 0.15); color: #ff9500; }
+.verdict-badge.low { background: rgba(255, 59, 48, 0.15); color: #ff3b30; }
+.verdict-badge.unscored { background: var(--color-surface-pearl); color: var(--color-ink-muted-48); }
+
 /* ── Visible keyboard focus ──────────────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid var(--color-primary-focus);

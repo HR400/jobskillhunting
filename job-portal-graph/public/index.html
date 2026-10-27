@@ -6,6 +6,7 @@
   <meta name="description" content="Graph-backed job portal — match, gap, network and what-if views." />
   <title>Job Portal — Match</title>
   <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/vendor/vis-network/styles/vis-network.min.css" />
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body data-mode="match">
@@ -41,18 +42,19 @@
     <section class="center" aria-label="Match workspace">
       <p id="view-note" class="muted" hidden></p>
 
-      <div class="canvas-slot" aria-label="Match canvas">
-        <p class="muted">MATCH CANVAS — the vis-network canvas arrives with the canvas ticket.</p>
+      <div class="canvas-slot" id="match-canvas" aria-label="Match canvas">
+        <p class="muted">Loading match graph…</p>
       </div>
+
+      <!-- Reveal strip (Ticket 40): populated by reveal.js during the animation. -->
+      <div id="reveal-strip" class="reveal-strip" aria-live="polite" aria-label="Match verdict"></div>
 
       <div class="charts">
         <div class="chart" id="ranked-bars">
           <h3>Ranked matches</h3>
-          <p class="muted">Ranked bars (D3) arrive with the charts ticket.</p>
         </div>
         <div class="chart" id="skill-radar">
           <h3>Skill radar</h3>
-          <p class="muted">Radar (D3) arrives with the charts ticket.</p>
         </div>
         <div class="chart" id="gap-list">
           <h3>Gap list</h3>
@@ -68,11 +70,14 @@
     <!-- Right column: inspector (slide-out below 1100 px). -->
     <aside class="inspector" id="inspector" aria-label="Inspector">
       <h2 class="panel-title">Inspector</h2>
-      <p class="muted">Node and edge details, per-skill breakdown and query timing slide out
-        here once the canvas exists.</p>
+      <div id="inspector-content">
+        <p class="muted">Select a job node in the canvas to view match breakdown, requirements, and query transparency.</p>
+      </div>
     </aside>
   </main>
 
+  <script src="/vendor/vis-network/standalone/umd/vis-network.min.js"></script>
+  <script src="/vendor/d3/d3.min.js"></script>
   <script type="module" src="/js/app.js"></script>
 </body>
 </html>

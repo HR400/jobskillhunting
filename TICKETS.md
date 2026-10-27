@@ -141,32 +141,32 @@ done-when check has run and its result is in `job-portal-graph/docs/PROGRESS.md`
   three-column layout and tabs of §10.2 on `tokens.css` only, responsive to 360 px, visible
   focus, reduced-motion media query.
   Done when light/dark and 360 px render without overflow and the tab order is keyboard-usable.
-- [ ] **33 Wizard: account + basics.** `public/js/forms.js` steps 1–2 (account, basics,
+- [x] **33 Wizard: account + basics.** `public/js/forms.js` steps 1–2 (account, basics,
   freelancer/fresher/experienced extras), no default values that look like data.
-  Done when server validation errors map back onto the exact field.
-- [ ] **34 Wizard: skills.** Typeahead against `/api/skills?q=`, 1–5 control with labels, years,
+  Done when server validation errors map back onto the exact field. *(done)*
+- [x] **34 Wizard: skills.** Typeahead against `/api/skills?q=`, 1–5 control with labels, years,
   optional last-used year, confirm-to-add for unknown skills.
-  Done when a skill typed with different case attaches to the existing `Skill` node.
-- [ ] **35 Wizard: education, location, review.** Steps 4–5 + submit; atomic profile write.
-  Done when the review step shows only entered values and submit lands one profile.
-- [ ] **36 Canvas + inspector.** `public/js/canvas.js` (vis-network, stabilise then freeze,
+  Done when a skill typed with different case attaches to the existing `Skill` node. *(done)*
+- [x] **35 Wizard: education, location, review.** Steps 4–5 + submit; atomic profile write.
+  Done when the review step shows only entered values and submit lands one profile. *(done)*
+- [x] **36 Canvas + inspector.** `public/js/canvas.js` (vis-network, stabilise then freeze,
   ~300-node cap), `inspector.js` (real node/edge props, per-skill breakdown, employer).
-  Done when clicking a job shows numbers equal to `/api/match/:candId/:jobId`.
-- [ ] **37 Charts.** `public/js/charts/bars.js` (ranked bars) and `radar.js` (candidate vs
+  Done when clicking a job shows numbers equal to `/api/match/:candId/:jobId`. *(done)*
+- [x] **37 Charts.** `public/js/charts/bars.js` (ranked bars) and `radar.js` (candidate vs
   required), D3 SVG, table fallback.
-  Done when every value matches the API payload and the table toggle exposes the same rows.
-- [ ] **38 Phase 3 smoke.** Playwright: register → skills → education → review → canvas,
+  Done when every value matches the API payload and the table toggle exposes the same rows. *(done)*
+- [x] **38 Phase 3 smoke.** Playwright: register → skills → education → review → canvas,
   plus no-jobs and no-skills empty states.
-  Done when the run is green and the screenshots show real entered data.
+  Done when the run is green and the screenshots show real entered data. *(done)*
 
 ## Phase 4 — reveal and linked views
 
-- [ ] **39 SSE stream.** `GET /api/match/stream` per §9.3: flush per record, 15 s heartbeat,
+- [x] **39 SSE stream.** `GET /api/match/stream` per §9.3: flush per record, 15 s heartbeat,
   2 streams per user, abort on `req.close`, `error` event never a 500 page.
-  Done when curling it shows ordered events and dropping the client frees the transaction.
-- [ ] **40 Reveal.** `public/js/reveal.js`: seed → skills → demand wave → edge states → verdict
+  Done when curling it shows ordered events and dropping the client frees the transaction. *(done)*
+- [x] **40 Reveal.** `public/js/reveal.js`: seed → skills → demand wave → edge states → verdict
   strip; reduced-motion renders instantly in the same order.
-  Done when every drawn element exists in a stream event and reduced motion loses no information.
+  Done when every drawn element exists in a stream event and reduced motion loses no information. *(done)*
 - [ ] **41 Linked views.** Brushing both ways through the store: radar ↔ canvas ↔ gap ↔ bars.
   Done when hovering a skill highlights all three views and selecting a node filters the charts.
 - [ ] **42 Query drawer.** Name, Cypher, params, row count, `dbTimeMs` from the driver summary.

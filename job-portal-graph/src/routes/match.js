@@ -10,7 +10,10 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../middleware/errors.js';
 import { executeRead } from '../db/tx.js';
-import { Errors } from '../lib/errors.js';
+import { getDriver } from '../db/driver.js';
+import { config } from '../config.js';
+import { Errors, AppError } from '../lib/errors.js';
+import { authenticate, requireRole } from '../middleware/auth.js';
 import { bandFor, requirementStatus } from '../services/matching.js';
 import { plain, queryMeta, toNumber } from '../lib/queryMeta.js';
 import { Q1_MATCH, Q1_SUBGRAPH } from '../queries/q1Match.js';
@@ -18,6 +21,15 @@ import { EXISTS_CANDIDATE, EXISTS_CANDIDATE_JOB } from '../queries/exists.js';
 import { RANKED_JOBS, UNSCORED_JOBS } from '../queries/candidateRanking.js';
 import { WHAT_IF_RANKING } from '../queries/whatIf.js';
 import { buildHypotheticalMap, describeWhatIf } from '../services/whatIf.js';
+import {
+  STREAM_CANDIDATE,
+  STREAM_SKILLS,
+  STREAM_SCORED_JOBS,
+} from '../queries/matchStream.js';
+
+// Ticket 39: per-user stream concurrency cap (plan §9.3 "max 2 concurrent streams per user").
+// Map<accountId, Set<res>> — cleaned up on close.
+const activeStreams = new Map();
 
 export const matchRouter = Router();
 
@@ -79,6 +91,162 @@ const whatIfSchema = z
       .max(100),
   })
   .strict();
+
+// ── SSE stream (Ticket 39, plan §9.3) ───────────────────────────────────────
+//
+// GET /api/match/stream?candId=...
+//
+// Emits: candidate, skill×N, job_scored×N, done
+// Heartbeat every 15 s; max 2 concurrent streams per authenticated user.
+// On req.close the session is aborted and the stream slot is released.
+//
+matchRouter.get(
+  '/stream',
+  authenticate,
+  requireRole('candidate'),
+  asyncHandler(async (req, res) => {
+    const candId = req.query.candId;
+    if (!candId || typeof candId !== 'string' || candId.length > 64) {
+      throw Errors.validation('candId is required.', [{ path: 'candId', message: 'Must be a non-empty string ≤64 chars.' }]);
+    }
+
+    const accountId = req.auth.accountId;
+
+    // Enforce max-2-streams-per-user cap.
+    if (!activeStreams.has(accountId)) activeStreams.set(accountId, new Set());
+    const userStreams = activeStreams.get(accountId);
+    if (userStreams.size >= 2) {
+      throw new AppError('RATE_LIMITED', 'Max 2 concurrent streams per user.');
+    }
+    userStreams.add(res);
+
+    // SSE headers.
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+
+    let closed = false;
+    let heartbeatTimer = null;
+    let neoSession = null;
+
+    function cleanup() {
+      closed = true;
+      clearInterval(heartbeatTimer);
+      userStreams.delete(res);
+      if (userStreams.size === 0) activeStreams.delete(accountId);
+      if (neoSession) {
+        neoSession.close().catch(() => {});
+        neoSession = null;
+      }
+    }
+
+    req.on('close', cleanup);
+
+    function emit(event, data) {
+      if (closed) return;
+      res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+    }
+
+    function heartbeat() {
+      if (!closed) res.write(': heartbeat\n\n');
+    }
+
+    heartbeatTimer = setInterval(heartbeat, 15_000);
+
+    try {
+      // Open a session directly so we can abort it on client disconnect.
+      neoSession = getDriver().session({
+        database: config.NEO4J_DATABASE,
+        defaultAccessMode: 'READ',
+      });
+
+      // 1. Candidate seed event.
+      if (closed) { cleanup(); return; }
+      const candResult = await neoSession.run(STREAM_CANDIDATE, { candId });
+      if (candResult.records.length === 0) {
+        emit('error', { error: { code: 'NOT_FOUND', message: 'Candidate not found.' } });
+        cleanup();
+        res.end();
+        return;
+      }
+      const cRec = candResult.records[0];
+      emit('candidate', {
+        node: {
+          id: cRec.get('cand_id'),
+          fname: cRec.get('fname'),
+          lname: cRec.get('lname'),
+          candidate_type: cRec.get('candidate_type'),
+        },
+      });
+
+      // 2. Skill fan-out events (one per held skill).
+      if (closed) { cleanup(); return; }
+      const skillResult = await neoSession.run(STREAM_SKILLS, { candId });
+      for (const r of skillResult.records) {
+        if (closed) break;
+        emit('skill', {
+          node: { id: r.get('skill_key'), skill_key: r.get('skill_key'), name: r.get('name') },
+          edge: {
+            type: 'HAS_SKILL',
+            proficiency: toNumber(r.get('proficiency')),
+            years: toNumber(r.get('years')),
+            last_used_year: toNumber(r.get('last_used_year')),
+          },
+        });
+      }
+
+      // 3. Job scored events (one per matched job).
+      if (closed) { cleanup(); return; }
+      const jobResult = await neoSession.run(STREAM_SCORED_JOBS, { candId });
+      let strong = 0, moderate = 0, low = 0, unscored = 0;
+
+      for (const r of jobResult.records) {
+        if (closed) break;
+        const matchPct = toNumber(r.get('match_pct'));
+        const band = bandFor(matchPct);
+        if (band === 'Strong') strong++;
+        else if (band === 'Moderate') moderate++;
+        else if (band === 'Low') low++;
+        else unscored++;
+
+        const reqs = r.get('reqs') || [];
+        emit('job_scored', {
+          node: { id: r.get('job_id'), job_title: r.get('job_title') },
+          employer: { emp_id: r.get('emp_id'), company_name: r.get('employer') },
+          edges: reqs,
+          breakdown: reqs,
+          match_pct: matchPct,
+          mandatory_ok: r.get('mandatory_ok'),
+          band,
+        });
+      }
+
+      if (!closed) {
+        emit('done', {
+          totals: {
+            jobs: jobResult.records.length,
+            strong,
+            moderate,
+            low,
+            unscored,
+          },
+          meta: {
+            queryName: 'STREAM_SCORED_JOBS',
+            generatedAt: new Date().toISOString(),
+          },
+        });
+      }
+    } catch (err) {
+      if (!closed) {
+        emit('error', { error: { code: 'INTERNAL', message: 'Stream error.' } });
+      }
+    } finally {
+      cleanup();
+      if (!res.writableEnded) res.end();
+    }
+  }),
+);
 
 // POST is a separate method, so /what-if cannot be shadowed by the GET routes.
 matchRouter.post(

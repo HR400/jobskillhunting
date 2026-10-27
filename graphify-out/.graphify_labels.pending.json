@@ -1,15 +1,25 @@
 {
   "0": "package.json",
   "1": "DESIGN.md",
-  "2": "routes/auth.js",
+  "2": "check-phase3-smoke.mjs",
   "3": "PLAN.md — Job Portal with Skill-Based Candidate Matching (Neo4j graph edition)",
   "4": "src/app.js",
   "5": "healthcheck",
   "6": "config.js",
   "7": "db.js",
+  "8": "js/app.js",
   "9": "match.js",
-  "10": "routes/candidates.js",
+  "10": "queries/candidates.js",
   "11": "AGENTS.md",
   "12": "planner.md",
-  "13": "routes/jobs.js"
+  "13": "forms.js",
+  "14": "Progress",
+  "15": "TICKETS.md — job-portal-graph",
+  "16": "matching.js",
+  "17": "cypherVsReference.test.js",
+  "18": "routes/applications.js",
+  "19": "escoAvailable",
+  "20": "candidateSkillsEducation.js",
+  "21": "candidate",
+  "22": "services/whatIf.js"
 }

@@ -1,13 +1,26 @@
 /**
- * public/js/app.js — layout shell behaviour (Ticket 32).
+ * public/js/app.js — layout shell behaviour (Tickets 32, 37).
  *
  * Wires the §10.2 tab list to the store, keeps the ARIA tabs pattern keyboard
  * usable (roving tabindex + arrow keys), toggles the slide-out inspector and
  * reflects the session state through the API client.
+ *
+ * Ticket 37: initialises D3 bar and radar charts; updates them from API data.
  */
 import { api, ApiError } from './api.js';
 import { setState, subscribe } from './store.js';
 import { initWizard } from './forms.js';
+import { initCanvas } from './canvas.js';
+import { initInspector } from './inspector.js';
+import { initBars } from './charts/bars.js';
+import { initRadar } from './charts/radar.js';
+import { startReveal } from './reveal.js';
+
+let activeCandidateId = null;
+let canvasInstance = null;
+let inspectorInstance = null;
+let barsInstance = null;
+let radarInstance = null;
 
 // ── Tabs (ARIA tabs pattern, automatic activation) ──────────────────────────
 const tabs = [...document.querySelectorAll('[role="tab"]')];
@@ -69,6 +82,65 @@ toggle.addEventListener('click', () => {
   toggle.setAttribute('aria-expanded', String(open));
 });
 
+// ── Load match graph & inspector ────────────────────────────────────────────
+async function loadCandidateMatch(candId) {
+  activeCandidateId = candId;
+  try {
+    const ranking = await api.get(`/match/candidate/${encodeURIComponent(candId)}/jobs`);
+    const topJob = ranking.ranked?.[0];
+
+    // Populate the ranked-bars chart with real API data.
+    if (barsInstance) {
+      barsInstance.render(ranking.ranked ?? []);
+    }
+
+    // Start the match reveal animation (Ticket 40)
+    if (canvasInstance) {
+      const verdictStrip = document.getElementById('reveal-strip');
+      startReveal({
+        candId,
+        canvas: canvasInstance,
+        verdictStrip,
+        onComplete: async (totals) => {
+          if (topJob) {
+            if (inspectorInstance) {
+              inspectorInstance.inspectJob(candId, topJob.job_id);
+            }
+            await updateRadar(candId, topJob.job_id);
+          }
+        },
+        onError: () => {
+          // Fallback if SSE stream fails: render static subgraph
+          if (topJob) {
+            api.get(`/match/${encodeURIComponent(candId)}/${encodeURIComponent(topJob.job_id)}/subgraph`)
+              .then((subgraph) => canvasInstance.render(subgraph))
+              .catch(() => {});
+          } else {
+            canvasInstance.render({
+              nodes: [{ id: candId, type: 'Candidate', label: 'You' }],
+              edges: [],
+            });
+          }
+        },
+      });
+    }
+  } catch (err) {
+    console.error('Failed to load candidate match graph:', err);
+  }
+}
+
+/** Fetch Q1 breakdown and render the radar chart. */
+async function updateRadar(candId, jobId) {
+  if (!radarInstance) return;
+  try {
+    const res = await api.get(`/match/${encodeURIComponent(candId)}/${encodeURIComponent(jobId)}`);
+    const breakdown = res.match?.breakdown ?? res.breakdown ?? [];
+    radarInstance.render(breakdown);
+  } catch {
+    radarInstance.clear();
+  }
+}
+
 // ── Session state ───────────────────────────────────────────────────────────
 async function renderSession() {
   const el = document.getElementById('session-state');
@@ -84,10 +156,15 @@ async function renderSession() {
       try {
         await api.post('/auth/logout');
       } finally {
+        activeCandidateId = null;
         renderSession();
       }
     });
     el.append(label, out);
+
+    if (me.role === 'candidate' && me.profileId) {
+      loadCandidateMatch(me.profileId);
+    }
   } catch (err) {
     if (err instanceof ApiError && err.status === 401) {
       el.textContent = 'Not signed in';
@@ -103,10 +180,55 @@ subscribe((state) => {
   renderNote(state);
 });
 renderMode({ mode: 'match' });
+
+// Initialize Inspector
+const inspectorSlot = document.getElementById('inspector-content');
+if (inspectorSlot) {
+  inspectorInstance = initInspector(inspectorSlot);
+}
+
+// Initialize Canvas
+const canvasSlot = document.getElementById('match-canvas');
+if (canvasSlot) {
+  canvasInstance = initCanvas(canvasSlot, (node) => {
+    setState({ selection: { type: node.nodeType, id: node.id } });
+    if (node.nodeType === 'Job' && activeCandidateId) {
+      inspectorInstance?.inspectJob(activeCandidateId, node.id);
+      // Ticket 37: update radar when a job is selected on canvas.
+      updateRadar(activeCandidateId, node.id);
+    } else {
+      inspectorInstance?.renderNode(node);
+    }
+  });
+}
+
+// Ticket 37: Initialize D3 charts.
+const barsSlot = document.getElementById('ranked-bars');
+if (barsSlot) {
+  barsInstance = initBars(barsSlot);
+}
+const radarSlot = document.getElementById('skill-radar');
+if (radarSlot) {
+  radarInstance = initRadar(radarSlot);
+}
+
+// Ticket 37: when the user selects a job from the bars chart, also update radar.
+window.addEventListener('bars-select', (e) => {
+  if (e.detail?.jobId && activeCandidateId) {
+    updateRadar(activeCandidateId, e.detail.jobId);
+    inspectorInstance?.inspectJob(activeCandidateId, e.detail.jobId);
+  }
+});
+
 renderSession();
 
 // Re-render session bar when the wizard fires a session-change event.
-window.addEventListener('session-change', () => renderSession());
+window.addEventListener('session-change', (e) => {
+  renderSession();
+  if (e.detail?.profileId && e.detail?.role === 'candidate') {
+    loadCandidateMatch(e.detail.profileId);
+  }
+});
 
 // Initialise the profile wizard into the left-column slot.
 const wizardSlot = document.getElementById('wizard-slot');

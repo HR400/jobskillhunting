@@ -89,6 +89,16 @@ export function createApp() {
   app.use(express.json({ limit: '100kb' }));
   app.use(cookieParser());
 
+  // Vendor libraries (vis-network, d3)
+  app.use(
+    '/vendor/vis-network',
+    express.static(fileURLToPath(new URL('../node_modules/vis-network', import.meta.url))),
+  );
+  app.use(
+    '/vendor/d3',
+    express.static(fileURLToPath(new URL('../node_modules/d3/dist', import.meta.url))),
+  );
+
   // Static frontend (public/index.html at /). Served before /api routes —
   // the two never overlap.
   app.use(express.static(fileURLToPath(new URL('../public', import.meta.url))));

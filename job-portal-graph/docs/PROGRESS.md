@@ -267,3 +267,71 @@ Format: `## YYYY-MM-DD: <phase/ticket>` then what passed, what was skipped and w
 - Tests: no vitest additions — the shell is DOM/CSS + wiring already asserted by the check script and 7 frontend unit tests. Full suite after: 28 files / 138 tests green.
 - Note: the check script runs against a live server (`node scripts/check-layout-shell.mjs [baseUrl]`) and is not wired into `npm test`; it is the reusable harness for later view tickets.
 - Skipped: no content panels yet (canvas, inspector details, charts arrive with tickets 36–37); sign-in on the page itself is the wizard's job (ticket 33) — the shell links `/smoke.html` meanwhile; no favicon/robots.txt (404s in logs, cosmetic, not in the ticket).
+
+## 2026-10-27: Ticket 33 — wizard: account + basics (Phase 3)
+
+- `public/js/forms.js`: steps 1–2 implemented without synthetic default data (`fname`/`lname` collected directly in step 1 alongside `candidate_type`). Step 2 renders type-specific extras: `hourly_rate` and `portfolio_url` for freelancers, `grad_year` for freshers, `total_exp` and `current_company` for experienced candidates.
+- Server validation error mapping: `showFieldErrors(form, details)` maps `details[].path` (with `profile.` prefix stripped) to target inputs via `[name="..."]`, applying `.field-invalid` styles and rendering `.field-error` message elements.
+- Done-when checked: `tests/integration/wizardFields.test.js` verified that server validation errors from both `POST /api/auth/register` and `PUT /api/candidates/me` carry field-path details that map to exact inputs; registered candidates transition to step 2 with no fake data. 13 tests green.
+- Skipped: step 3 (skills) is ticket 34, steps 4–5 are ticket 35.
+
+## 2026-10-27: Ticket 34 — wizard: skills (Phase 3)
+
+- `public/js/forms.js`: step 3 renders skill list with proficiency labels (`1/5 Beginner` to `5/5 Expert`), years of experience (0–60), optional `last_used_year`, and removal buttons. Typeahead queries `/api/skills?q=` with 250 ms debounce; offers `Add "..." as a new skill…` with confirm dialog when not found in catalogue.
+- `PUT /api/candidates/me/skills`: canonicalizes `skillKey`, executes atomic replacement (`DELETE_CANDIDATE_SKILL_EDGES` then `INSERT_CANDIDATE_SKILLS` with `MERGE (s:Skill {skill_key})`).
+- Done-when checked: `tests/integration/wizardSkills.test.js` verified that a skill entered with different case (`NODE.JS` vs existing `Node.js`) normalizes to `node.js` and attaches via `HAS_SKILL` edge to the single existing `Skill` node without creating a duplicate. Test green.
+- Skipped: steps 4–5 (education, review) are ticket 35.
+
+## 2026-10-27: Ticket 35 — wizard: education, location, review (Phase 3)
+
+- `public/js/forms.js`: step 4 implements education management (degree, university, start/end year, cgpa, specialization) via `POST/DELETE /api/candidates/me/education`. Step 5 implements the review summary card displaying only user-entered values (no synthetic defaults) across account, basics, skills, and education. Submitting transitions to profile-ready state and fires `session-change`/`profile-ready` events.
+- `public/style.css`: added styles for `.edu-row`, `.review-card`, `.review-section`, `.review-title`, and `.review-entry` adhering to `tokens.css`.
+- Done-when checked: `tests/integration/wizardReview.test.js` verified that a full registration, basics update, skill submission, and education creation flow lands exactly 1 candidate profile with only entered values in Neo4j, non-entered fields remain absent/null, and education and skills edges are linked. Test green.
+- Skipped: canvas & inspector are ticket 36.
+
+## 2026-10-27: Ticket 36 — canvas + inspector (Phase 3)
+
+- `src/app.js`: mounted static vendor assets `/vendor/vis-network` (serving vis-network standalone UMD bundle and stylesheets) and `/vendor/d3` (serving D3 bundle).
+- `public/js/canvas.js`: implemented vis-network 2D canvas with physics stabilization then freeze (`network.setOptions({ physics: false })`), ~300-node safety cap, type-based node styling (Candidate, Job, Employer, Skill) and state-based edge styling (green satisfied, amber below, red dashed missing, neutral gray).
+- `public/js/inspector.js`: implemented inspector panel displaying real node and edge properties, match score, band, mandatory status, matched count, per-skill breakdown table (required vs held proficiency/years and mandatory flag), and query transparency drawer (`Q1_MATCH`, `dbTimeMs`, `rowCount`).
+- `public/js/app.js`: wired candidate graph loading and canvas node click to inspector (`inspectJob(candId, jobId)`).
+- `public/style.css`: added styles for `.inspector-metrics`, `.metric-card`, `.inspector-table`, and status indicators adhering to `tokens.css`.
+- Done-when checked: `tests/integration/canvasInspector.test.js` verified that `/vendor/vis-network/standalone/umd/vis-network.min.js` returns 200 with javascript MIME type, `/api/match/:candId/:jobId/subgraph` returns candidate/job/employer/skill nodes with satisfied edges, and `/api/match/:candId/:jobId` returns match metrics (100 %, Strong, mandatory_ok, breakdown) matching the inspector contract. Full suite: 32 files / 147 tests green.
+- Skipped: charts (bars, radar) are ticket 37, Playwright browser smoke is ticket 38.
+
+## 2026-10-27: Ticket 37 — charts (Phase 3)
+
+- `public/js/charts/bars.js`: horizontal D3 SVG bar chart of ranked matches with `match_pct` width, color-coded by band (Strong green, Moderate amber, Low muted), mandatory flag, click selection dispatching `bars-select`, and accessible table fallback toggle.
+- `public/js/charts/radar.js`: circular radar chart showing required vs held skill proficiency with closed polygonal paths, labelled axes, and accessible table fallback toggle.
+- `public/js/app.js`: wired D3 chart instances into layout slots `#ranked-bars` and `#skill-radar`; updates charts when candidate ranking loads or when a job node is selected on the canvas.
+- `public/style.css`: added styles for `.chart-toolbar`, `.chart-toggle-btn`, `.chart-table`, and SVG styling adhering to `tokens.css`.
+- Done-when checked: `tests/integration/charts.test.js` verified that `/vendor/d3/d3.min.js` serves with JavaScript MIME type, Q1 breakdown supplies all fields bars and radar consume, and ranked list values match direct Q1 values ensuring table-toggle parity. All tests green.
+- Skipped: linked brushing between charts and canvas/inspector is ticket 41.
+
+## 2026-10-27: Ticket 38 — Phase 3 smoke (Phase 3)
+
+- `scripts/check-phase3-smoke.mjs`: Playwright smoke script using system Chrome — tests empty-state `/api/jobs`, candidate registration, basics entry (experienced role), skill search & proficiency entry, education entry, review card validation with only real entered data (no synthetic values), submit profile, canvas rendered with candidate node, and session/ranking empty state validation.
+- Fixed during check: corrected duplicate identifier `meta` in `public/js/inspector.js` causing client parse failure; corrected role selection in smoke script.
+- Done-when checked: `scripts/check-phase3-smoke.mjs` executed green and saved 10 screenshots to `scripts/out-phase3/` displaying real entered data.
+- Skipped: none.
+
+## 2026-10-27: Ticket 39 — SSE stream (Phase 4)
+
+- `src/queries/matchStream.js`: queries `STREAM_CANDIDATE`, `STREAM_SKILLS`, and `STREAM_SCORED_JOBS` pinned to Neo4j 5 syntax.
+- `src/routes/match.js`: implemented `GET /api/match/stream` per plan §9.3 — authenticates candidate, limits to 2 concurrent streams per user, flushes per record, sends 15 s heartbeat comments, aborts and cleans up Neo4j session on `req.close`. Emits ordered events: `candidate` → `skill` × N → `job_scored` × N → `done`.
+- Done-when checked: `tests/integration/sseStream.test.js` verified unauthenticated 401, employer 403, missing `candId` 400, and live ordered SSE event emission over HTTP. All tests green.
+- Skipped: client-side animation is ticket 40.
+
+## 2026-10-27: Ticket 40 — reveal (Phase 4)
+
+- `public/js/reveal.js`: implemented `startReveal` consuming `GET /api/match/stream?candId=...`. Sequence:
+  1. Seed: candidate node placed at canvas centre.
+  2. Skills fan out: Skill nodes attached via `HAS_SKILL` edges with proficiency width and labels.
+  3. Demand wave: Job nodes added connected through shared Skill nodes; node size proportional to `match_pct`, dashed border if `!mandatory_ok`.
+  4. Edge states: solid green (satisfied), amber (below), red dashed (missing).
+  5. Verdict strip: computed totals template rendered into `#reveal-strip`.
+- Reduced-motion: when `prefers-reduced-motion: reduce` is detected, animations render instantly in the exact same sequence without omitting any stream nodes or edges.
+- `public/js/app.js`: wired `startReveal` into `loadCandidateMatch` with static fallback.
+- Done-when checked: `tests/integration/reveal.test.js` verified sequential ordering, accurate canvas node/edge mapping strictly from stream data, reduced-motion parity, and verdict strip summary. Full test suite: 35 files / 156 tests green.
+- Skipped: linked brushing (radar ↔ canvas ↔ gap ↔ bars) is ticket 41.
+
